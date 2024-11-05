@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "vegehub"
-version = "0.1.4"
+version = "0.1.5"
 description = "A basic package for simplifying interactions with the Vegetronix VegeHub"
 authors = ["GhoweVege <85890024+GhoweVege@users.noreply.github.com>"]
 readme = "README.md"
@@ -11,7 +11,7 @@ license = "GPL-3.0-or-later"
 [tool.poetry.dependencies]
 python = "^3.12"
 pytest = "^8.3.3"
-aiohttp = "^3.10.10"
+aiohttp = "^3.10.8"
 
 
 [tool.poetry.group.dev.dependencies]
