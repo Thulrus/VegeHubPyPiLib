@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "vegehub"
+version = "0.1.0"
+description = ""
+authors = ["GhoweVege <85890024+GhoweVege@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pytest = "^8.3.3"
+aiohttp = "^3.10.10"
+logging = "^0.4.9.6"
+
+
+[tool.poetry.group.dev.dependencies]
+aioresponses = "^0.7.6"
+pytest-asyncio = "^0.24.0"
+mypy = "^1.13.0"
+pytest-cov = "^6.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
