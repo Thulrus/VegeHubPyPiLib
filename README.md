@@ -1,5 +1,5 @@
 # Vegetronix VegeHub
 
-This package is intended to simplify interactions with the Vegetronix VegeHub. It allows remote setup of the API key and target server address, as well as simplifying retrieval of information about the Hub, including its MAC address.
+This package is intended to simplify interactions with the [Vegetronix VegeHub](https://www.vegetronix.com/Products/VG-HUB-RELAY/). It allows remote setup of the API key and target server address, as well as simplifying retrieval of information about the Hub, including its MAC address.
 
-The package was written for use with the VegeHub integration for Home Assistant, but may be used in other projects as well.
+This package was written for use with the VegeHub integration for [Home Assistant](https://www.home-assistant.io/), but may be used in other projects as well.
