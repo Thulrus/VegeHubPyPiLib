@@ -10,10 +10,9 @@ _LOGGER = logging.getLogger(__name__)
 class VegeHub():
     """Vegehub class will contain all properties and methods necessary for contacting the Hub."""
 
-    def __init__(self, ip_address: str) -> None:
+    def __init__(self, ip_address: str, mac_address: str = "") -> None:
         self._ip_address = ip_address
-        self._mac_address = ""
-        self._simple_mac_address = ""
+        self._mac_address = mac_address
         self._info: dict[Any, Any] | None = None
 
     @property
@@ -25,11 +24,6 @@ class VegeHub():
     def mac_address(self) -> str | None:
         """Property to retrieve MAC address"""
         return self._mac_address
-
-    @property
-    def simple_mac_address(self) -> str | None:
-        """Property to retrieve a simplified MAC address"""
-        return self._simple_mac_address
 
     @property
     def info(self) -> dict | None:
@@ -45,9 +39,7 @@ class VegeHub():
         return await self._get_device_mac()
 
     async def setup(self, api_key: str, server_address: str) -> bool:
-        """Set the API key and target server on the Hub.
-            The API key will be the simplified MAC address of the hub,
-            and the """
+        """Set the API key and target server on the Hub."""
         # Fetch current config from the device
         config_data = await self._get_device_config()
 
@@ -179,7 +171,6 @@ class VegeHub():
                     self._ip_address)
                 return False
             _LOGGER.info("%s MAC address: %s", self._ip_address, mac_address)
-            self._simple_mac_address = mac_address.replace(":", "").lower()
-            self._mac_address = mac_address
+            self._mac_address = mac_address.replace(":", "").lower()
             return True
         return False
