@@ -5,6 +5,20 @@ from aioresponses import aioresponses
 from vegehub.vegehub import VegeHub  # Update import as necessary based on your project structure
 
 IP_ADDR = "192.168.0.100"
+ACTUATOR_INFO_LOAD = {
+    "actuators": [{
+        "slot": 0,
+        "state": 0,
+        "last_run": 1730911079,
+        "next_window_start": 1730916000,
+        "next_window_end": 1730916600,
+        "cur_ma": 0,
+        "typ_ma": 0,
+        "error": 0
+    }],
+    "error":
+    "success"
+}
 
 
 @pytest.fixture(name="basic_hub")
@@ -26,8 +40,7 @@ async def test_retrieve_mac_address_success(basic_hub):
 
         ret = await basic_hub.retrieve_mac_address()
         assert ret is True
-        assert basic_hub.mac_address == mac_address
-        assert basic_hub.simple_mac_address == "aabbccddeeff"
+        assert basic_hub.mac_address == "AABBCCDDEEFF"
 
 
 @pytest.mark.asyncio
@@ -55,7 +68,6 @@ async def test_retrieve_mac_address_failure_data(basic_hub):
 
         assert ret is False
         assert basic_hub.mac_address == ""
-        assert basic_hub.simple_mac_address == ""
 
 
 @pytest.mark.asyncio
@@ -222,3 +234,58 @@ async def test_request_update_fail(basic_hub):
         mocked.get(f"http://{IP_ADDR}/api/update/send", status=400)
 
         await basic_hub.request_update()
+
+
+@pytest.mark.asyncio
+async def test_set_actuator(basic_hub):
+    """Test the _request_update method sends the update request to the device."""
+    with aioresponses() as mocked:
+        mocked.post(f"http://{IP_ADDR}/api/actuators/set", status=200)
+
+        ret = await basic_hub.set_actuator(0, 0, 60)
+
+        assert ret is True
+        
+@pytest.mark.asyncio
+async def test_set_actuator_fail(basic_hub):
+    """Test the _request_update method sends the update request to the device."""
+    with pytest.raises(ConnectionError):
+        with aioresponses() as mocked:
+            mocked.post(f"http://{IP_ADDR}/api/actuators/set", status=400)
+
+            await basic_hub.set_actuator(0, 0, 60)
+
+
+@pytest.mark.asyncio
+async def test_actuator_states(basic_hub):
+    """Test the _request_update method sends the update request to the device."""
+    with aioresponses() as mocked:
+        mocked.get(f"http://{IP_ADDR}/api/actuators/status",
+                    status=200,
+                    payload=ACTUATOR_INFO_LOAD)
+
+        ret = await basic_hub.actuator_states()
+
+        assert ret[0]["state"] is 0
+
+@pytest.mark.asyncio
+async def test_actuator_states_fail(basic_hub):
+    """Test the _request_update method sends the update request to the device."""
+    with pytest.raises(AttributeError):
+        with aioresponses() as mocked:
+            mocked.get(f"http://{IP_ADDR}/api/actuators/status",
+                        status=200,
+                        payload={})
+
+            await basic_hub.actuator_states()
+            
+@pytest.mark.asyncio
+async def test_actuator_states_fail_connect(basic_hub):
+    """Test the _request_update method sends the update request to the device."""
+    with pytest.raises(ConnectionError):
+        with aioresponses() as mocked:
+            mocked.get(f"http://{IP_ADDR}/api/actuators/status",
+                        status=400,
+                        payload={})
+
+            await basic_hub.actuator_states()

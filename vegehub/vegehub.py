@@ -38,6 +38,15 @@ class VegeHub():
         """Start the process of retrieving the MAC address from the Hub"""
         return await self._get_device_mac()
 
+    async def set_actuator(self, state: int, slot: int,
+                           duration: int) -> bool:
+        """Set the target actuator to the target state for the intended duration."""
+        return await self._set_actuator(state, slot, duration)
+
+    async def actuator_states(self)->list:
+        """Grab the states of all actuators on the Hub and return a list of JSON data on them."""
+        return await self._get_actuator_info()
+
     async def setup(self, api_key: str, server_address: str) -> bool:
         """Set the API key and target server on the Hub."""
         # Fetch current config from the device
@@ -49,10 +58,10 @@ class VegeHub():
 
         # Send the modified config back to the device
         ret = await self._set_device_config(modified_config)
-        
+
         if ret is not None:
             self._info = await self._get_device_info()
-            
+
         return ret
 
     async def _get_device_info(self) -> dict | None:
@@ -96,7 +105,7 @@ class VegeHub():
                               server_url: str) -> dict | None:
         """Modify the device config by adding or updating the API key."""
         error = False
-        
+
         if config_data is None:
             return None
 
@@ -120,7 +129,7 @@ class VegeHub():
     async def _set_device_config(self, config_data: dict | None) -> bool:
         """Send the modified configuration back to the device."""
         url = f"http://{self._ip_address}/api/config/set"
-        
+
         if config_data is None:
             return False
 
@@ -171,6 +180,54 @@ class VegeHub():
                     self._ip_address)
                 return False
             _LOGGER.info("%s MAC address: %s", self._ip_address, mac_address)
-            self._mac_address = mac_address.replace(":", "").lower()
+            self._mac_address = mac_address.replace(":", "").upper()
+        return True
+
+    async def _set_actuator(self, state: int, slot: int,
+                            duration: int) -> bool:
+        url = f"http://{self._ip_address}/api/actuators/set"
+        _LOGGER.info("Setting actuator %s on %s", slot, self._ip_address)
+
+        # Prepare the JSON payload for the POST request
+        payload = {
+            "target": slot,
+            "duration": duration,
+            "state": state,
+        }
+
+        # Use aiohttp to send the POST request with the JSON body
+        async with (
+            aiohttp.ClientSession() as session,
+            session.post(url, json=payload) as response,
+        ):
+            if response.status != 200:
+                _LOGGER.error(
+                    "Failed to set actuator state on %s: HTTP %s",
+                    url,
+                    response.status,
+                )
+                raise ConnectionError
             return True
-        return False
+
+    async def _get_actuator_info(self) -> list:
+        """Fetch the current status of the actuators."""
+        url = f"http://{self._ip_address}/api/actuators/status"
+        _LOGGER.info("Retrieving actuator status from %s", self._ip_address)
+
+        # Use aiohttp to send the POST request with the JSON body
+        async with aiohttp.ClientSession() as session, session.get(
+            url) as response:
+            if response.status != 200:
+                _LOGGER.error("Failed to status from %s: HTTP %s", url,
+                              response.status)
+                raise ConnectionError
+
+            # Parse the JSON response
+            config_data = await response.json()
+            actuators = config_data.get("actuators", [])
+            if not actuators:
+                _LOGGER.error(
+                    "MAC address not found in the config response from %s",
+                    self._ip_address)
+                raise AttributeError
+            return actuators

@@ -13,7 +13,7 @@ async def supaloop():
     
     server_address = f"http://{get_local_ip()}:8123/api/vegehub/update"
     print(server_address)
-    await hub.setup(hub.simple_mac_address, server_address)
+    await hub.setup(hub.mac_address, server_address)
     print(hub.info)
     print("cool")
 
