@@ -43,3 +43,18 @@ HA also does not ever allow you to ask people for reviews or mention anyone by n
 ## Further Reading
 
 HA has excellent documentation on all of this,and much more, [here](https://developers.home-assistant.io/).
+
+## Publishing this library
+
+Before publishing this library be sure to run the following commands:
+
+- ```poetry run pylint vegehub```
+- ```poetry run mypy vegehub```
+- ```poetry run pytest --cov=vegehub tests/ --cov-report term-missing -vv```
+
+Then, if all those pass, change the version number in ```pyproject.toml```, and run:
+
+- ```poetry build```
+- ```poetry publish```
+
+And don't forget to commit to GitHub.

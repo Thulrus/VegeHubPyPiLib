@@ -1,6 +1,6 @@
 """Helper file containing data transformations."""
 
-def vh400_transform(value: int | str | float) -> float:
+def vh400_transform(value: int | str | float) -> float | None:
     """Perform a piecewise linear transformation on the input value.
 
     The transform is based on the following pairs of points:
@@ -17,10 +17,10 @@ def vh400_transform(value: int | str | float) -> float:
         try:
             float_value = float(value)
         except ValueError:
-            return -1.0
+            return None
 
     if not isinstance(float_value, float):
-        return -1.0
+        return None
 
     ret = 100.0
 
@@ -45,3 +45,14 @@ def vh400_transform(value: int | str | float) -> float:
 
     # For values greater than 3.0000, return 100.0000
     return ret
+
+def therm200_transform(value: int | str | float) -> float | None:
+    """Transform to change voltage into degrees celsius."""
+    if not isinstance(value, (int, str, float)):
+        return None
+    try:
+        float_value = float(value)
+    except ValueError:
+        return None
+
+    return (41.6700 * float_value) - 40.0000

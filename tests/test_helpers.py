@@ -1,7 +1,7 @@
 """Tests for helpers.py."""
 
 import pytest
-from vegehub.helpers import vh400_transform
+from vegehub.helpers import vh400_transform, therm200_transform  
 
 
 @pytest.mark.parametrize(
@@ -21,17 +21,14 @@ from vegehub.helpers import vh400_transform
         (3, 100.0),  # Fifth segment boundary
         (3.5, 100.0),  # Beyond the last segment
         ("1.5", 24.615),  # String input, valid conversion
-        ("invalid", -1.0),  # Invalid string input
-        (None, -1.0),  # None input
-        ([], -1.0),  # Invalid type (list)
+        ("invalid", None),  # Invalid string input
+        (None, None),  # None input
+        ([], None),  # Invalid type (list)
     ],
 )
 def test_vh400_transform(input_value, expected_output):
     """Test for basic values."""
-    print("input_value: " + str(input_value))
     result = vh400_transform(input_value)
-    print("value out: " + str(result))
-    print("expected out: " + str(expected_output))
     assert pytest.approx(result, rel=1e-4) == expected_output
 
 
@@ -43,3 +40,48 @@ def test_vh400_transform_large_input():
 def test_vh400_transform_negative_input():
     """Test negative input, which should result in 0.0."""
     assert vh400_transform(-1) == 0.0
+
+
+
+@pytest.mark.parametrize(
+    "input_value, expected_output",
+    [
+        (0, -40.0),              # Zero voltage
+        (1, 1.6700),             # Integer input
+        (2, 43.3400),            # Integer input
+        (0.5, -19.165),          # Float input
+        ("0.5", -19.165),        # String representation of a float
+        ("2", 43.3400),          # String representation of an integer
+        ("invalid", None),       # Invalid string input
+        (None, None),            # None input
+        ([], None),              # Invalid type (list)
+        (True, 1.6700),          # Boolean input (interpreted as int)
+        (-1, -81.6700),          # Negative input
+        (1000, 41630.0),         # Large value input
+    ],
+)
+def test_therm200_transform(input_value, expected_output):
+    """Test basic input values."""
+    result = therm200_transform(input_value)
+    if expected_output is None:
+        assert result is None
+    else:
+        assert pytest.approx(result, rel=1e-4) == expected_output
+
+
+def test_therm200_transform_large_negative_input():
+    """Test very large negative inputs."""
+    assert therm200_transform(-1000) == -41710.0
+
+
+def test_therm200_transform_non_numeric_types():
+    """Test non-numeric inputs explicitly."""
+    assert therm200_transform({"key": "value"}) is None
+    assert therm200_transform([1, 2, 3]) is None
+    assert therm200_transform((1, 2)) is None
+
+
+def test_therm200_transform_extreme_floats():
+    """Test extreme float values."""
+    assert pytest.approx(therm200_transform(1e-10), rel=1e-4) == -40.0
+    assert pytest.approx(therm200_transform(1e10), rel=1e1) == 416699999.960
