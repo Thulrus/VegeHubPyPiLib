@@ -10,40 +10,49 @@ _LOGGER = logging.getLogger(__name__)
 class VegeHub():
     """Vegehub class will contain all properties and methods necessary for contacting the Hub."""
 
-    def __init__(self, ip_address: str, mac_address: str = "") -> None:
-        self._ip_address = ip_address
-        self._mac_address = mac_address
+    def __init__(self,
+                 ip_address: str,
+                 mac_address: str = "",
+                 unique_id: str = "") -> None:
+        self._ip_address: str = ip_address
+        self._mac_address: str = mac_address
+        self._unique_id: str = unique_id
         self._info: dict[Any, Any] | None = None
+        self.entities: dict[Any, Any] = {}
 
     @property
     def ip_address(self) -> str:
-        """Property to retrieve IP address"""
+        """Property to retrieve IP address."""
         return self._ip_address
 
     @property
     def mac_address(self) -> str | None:
-        """Property to retrieve MAC address"""
+        """Property to retrieve MAC address."""
         return self._mac_address
 
     @property
+    def unique_id(self) -> str | None:
+        """Property to retrieve unique id."""
+        return self._unique_id
+
+    @property
     def info(self) -> dict | None:
-        """Property to retrieve IP address"""
+        """Property to retrieve IP address."""
         return self._info
 
     async def request_update(self) -> bool:
-        """Request an update of data from the Hub"""
+        """Request an update of data from the Hub."""
         return await self._request_update()
 
     async def retrieve_mac_address(self) -> bool:
-        """Start the process of retrieving the MAC address from the Hub"""
+        """Start the process of retrieving the MAC address from the Hub."""
         return await self._get_device_mac()
 
-    async def set_actuator(self, state: int, slot: int,
-                           duration: int) -> bool:
+    async def set_actuator(self, state: int, slot: int, duration: int) -> bool:
         """Set the target actuator to the target state for the intended duration."""
         return await self._set_actuator(state, slot, duration)
 
-    async def actuator_states(self)->list:
+    async def actuator_states(self) -> list:
         """Grab the states of all actuators on the Hub and return a list of JSON data on them."""
         return await self._get_actuator_info()
 

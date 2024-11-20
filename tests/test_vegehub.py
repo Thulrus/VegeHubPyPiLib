@@ -5,6 +5,7 @@ from aioresponses import aioresponses
 from vegehub.vegehub import VegeHub  # Update import as necessary based on your project structure
 
 IP_ADDR = "192.168.0.100"
+UNIQUE_ID = "aabbccddeeff"
 ACTUATOR_INFO_LOAD = {
     "actuators": [{
         "slot": 0,
@@ -24,7 +25,7 @@ ACTUATOR_INFO_LOAD = {
 @pytest.fixture(name="basic_hub")
 def fixture_basic_hub():
     """Fixture for creating a VegeHub instance."""
-    return VegeHub(ip_address=IP_ADDR)
+    return VegeHub(ip_address=IP_ADDR, unique_id=UNIQUE_ID)
 
 
 @pytest.mark.asyncio
@@ -41,6 +42,7 @@ async def test_retrieve_mac_address_success(basic_hub):
         ret = await basic_hub.retrieve_mac_address()
         assert ret is True
         assert basic_hub.mac_address == "AABBCCDDEEFF"
+        assert basic_hub.unique_id == UNIQUE_ID
 
 
 @pytest.mark.asyncio
@@ -289,3 +291,10 @@ async def test_actuator_states_fail_connect(basic_hub):
                         payload={})
 
             await basic_hub.actuator_states()
+
+@pytest.mark.asyncio
+async def test_add_get_entity(basic_hub):
+    """Test retrieve_mac_address method retrieves and sets the MAC address successfully."""
+    basic_hub.entities["entity_id"] = {"dummy":"data"}
+    entity = basic_hub.entities["entity_id"]
+    assert entity.get("dummy") == "data"
