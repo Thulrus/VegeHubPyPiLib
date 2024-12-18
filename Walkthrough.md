@@ -42,7 +42,7 @@ HA also does not ever allow you to ask people for reviews or mention anyone by n
 
 ## Further Reading
 
-HA has excellent documentation on all of this,and much more, [here](https://developers.home-assistant.io/).
+HA has excellent documentation on all of this, and much more, [here](https://developers.home-assistant.io/).
 
 ## Publishing this library
 

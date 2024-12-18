@@ -40,6 +40,27 @@ class VegeHub():
         """Property to retrieve IP address."""
         return self._info
 
+    @property
+    def num_sensors(self) -> int | None:
+        """The number of sensors channels on this hub."""
+        if self._info:
+            return int(self._info["hub"]["num_channels"] or 0)
+        return None
+
+    @property
+    def num_actuators(self) -> int | None:
+        """The number of sensors channels on this hub."""
+        if self._info:
+            return int(self._info["hub"]["num_actuators"] or 0)
+        return None
+
+    @property
+    def is_ac(self) -> bool | None:
+        """The number of sensors channels on this hub."""
+        if self._info:
+            return bool(self._info["hub"]["is_ac"])
+        return None
+
     async def request_update(self) -> bool:
         """Request an update of data from the Hub."""
         return await self._request_update()
