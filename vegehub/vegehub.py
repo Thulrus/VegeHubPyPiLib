@@ -65,32 +65,73 @@ class VegeHub():
         """Request an update of data from the Hub."""
         return await self._request_update()
 
-    async def retrieve_mac_address(self) -> bool:
+    async def retrieve_mac_address(self, retries: int = 0) -> bool:
         """Start the process of retrieving the MAC address from the Hub."""
-        return await self._get_device_mac()
+        ret = False
+        while True:
+            try:
+                ret = await self._get_device_mac()
+            except ConnectionError:
+                if retries <= 0:
+                    raise
+                retries -= 1
+                continue
 
-    async def set_actuator(self, state: int, slot: int, duration: int) -> bool:
+            if ret:
+                break
+
+            if retries <= 0:
+                break
+            retries -= 1
+        return ret
+
+    async def set_actuator(self,
+                           state: int,
+                           slot: int,
+                           duration: int,
+                           retries: int = 0) -> bool:
         """Set the target actuator to the target state for the intended duration."""
-        return await self._set_actuator(state, slot, duration)
+        while True:
+            try:
+                await self._set_actuator(state, slot, duration)
+            except ConnectionError:
+                if retries <= 0:
+                    raise
+                retries -= 1
+                continue
 
-    async def actuator_states(self) -> list:
+            break  # If we reach this point without an exception, it has succeeded
+        return True
+
+    async def actuator_states(self, retries: int = 0) -> list:
         """Grab the states of all actuators on the Hub and return a list of JSON data on them."""
-        return await self._get_actuator_info()
+        ret = []
+        while True:
+            try:
+                ret = await self._get_actuator_info()
+            except ConnectionError:
+                if retries <= 0:
+                    raise
+                retries -= 1
+                continue
 
-    async def setup(self, api_key: str, server_address: str) -> bool:
+            break  # If we reach this point without an exception, it has succeeded
+        return ret
+
+    async def setup(self,
+                    api_key: str,
+                    server_address: str,
+                    retries: int = 0) -> bool:
         """Set the API key and target server on the Hub."""
-        # Fetch current config from the device
-        config_data = await self._get_device_config()
+        config_data = await self._get_device_config_with_retries(retries)
 
         # Modify the config with the new API key and server address
         modified_config = self._modify_device_config(config_data, api_key,
                                                      server_address)
-
-        # Send the modified config back to the device
-        ret = await self._set_device_config(modified_config)
+        ret = await self._set_device_config_with_retries(modified_config, retries)
 
         if ret is not None:
-            self._info = await self._get_device_info()
+            await self._get_device_info_with_retries(retries)
 
         return ret
 
@@ -106,7 +147,7 @@ class VegeHub():
             if response.status != 200:
                 _LOGGER.error("Failed to get config from %s: HTTP %s", url,
                               response.status)
-                return None
+                raise ConnectionError
 
             # Parse the response JSON
             info_data = await response.json()
@@ -126,7 +167,7 @@ class VegeHub():
             if response.status != 200:
                 _LOGGER.error("Failed to get config from %s: HTTP %s", url,
                               response.status)
-                return None
+                raise ConnectionError
 
             # Parse the response JSON
             return await response.json()
@@ -170,8 +211,71 @@ class VegeHub():
             if response.status != 200:
                 _LOGGER.error("Failed to set config at %s: HTTP %s", url,
                               response.status)
-                return False
+                raise ConnectionError
         return True
+
+    async def _get_device_config_with_retries(self,
+                                              retries: int = 0) -> dict | None:
+        """Run the _get_device_config function, but retry on failures if retries > 0."""
+        while True:
+            try:
+                # Fetch current config from the device
+                config_data = await self._get_device_config()
+            except ConnectionError:
+                if retries <= 0:
+                    raise
+                retries -= 1
+                continue
+
+            if config_data:
+                return config_data
+
+            if retries <= 0:
+                break
+            retries -= 1
+        return None
+
+    async def _set_device_config_with_retries(self,
+                                              modified_config,
+                                              retries: int = 0) -> bool:
+        """Run the _set_device_config function, but retry on failures if retries > 0."""
+        ret = False
+        while True:
+            try:
+                # Send the modified config back to the device
+                ret = await self._set_device_config(modified_config)
+            except ConnectionError:
+                if retries <= 0:
+                    raise
+                retries -= 1
+                continue
+
+            if ret:
+                return ret
+
+            if retries <= 0:
+                break
+            retries -= 1
+        return ret
+
+    async def _get_device_info_with_retries(self, retries: int = 0) -> bool:
+        """Run the _get_device_info function, but retry on failures if retries > 0."""
+        while True:
+            try:
+                self._info = await self._get_device_info()
+            except ConnectionError:
+                if retries <= 0:
+                    raise
+                retries -= 1
+                continue
+
+            if self._info:
+                return True
+
+            if retries <= 0:
+                break
+            retries -= 1
+        return False
 
     async def _request_update(self) -> bool:
         """Ask the device to send in a full update of data to Home Assistant."""
@@ -182,7 +286,7 @@ class VegeHub():
             if response.status != 200:
                 _LOGGER.error("Failed to ask for update from %s: HTTP %s", url,
                               response.status)
-                return False
+                raise ConnectionError
         return True
 
     async def _get_device_mac(self) -> bool:
@@ -200,7 +304,7 @@ class VegeHub():
             if response.status != 200:
                 _LOGGER.error("Failed to get config from %s: HTTP %s", url,
                               response.status)
-                return False
+                raise ConnectionError
             # Parse the JSON response
             config_data = await response.json()
             mac_address = config_data.get("wifi", {}).get("mac_addr")
@@ -257,7 +361,7 @@ class VegeHub():
             actuators = config_data.get("actuators", [])
             if not actuators:
                 _LOGGER.error(
-                    "MAC address not found in the config response from %s",
+                    "Actuator information not found in response from %s",
                     self._ip_address)
                 raise AttributeError
             return actuators

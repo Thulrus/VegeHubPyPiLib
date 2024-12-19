@@ -82,8 +82,22 @@ async def test_retrieve_mac_address_failure_response(basic_hub):
         mocked.post(f"http://{IP_ADDR}/api/info/get",
                     payload=WIFI_INFO_PAYLOAD,
                     status=400)
-
-        ret = await basic_hub.retrieve_mac_address()
+        mocked.post(f"http://{IP_ADDR}/api/info/get",
+                    payload=WIFI_INFO_PAYLOAD,
+                    status=400)
+        # Note: This mock is repeated twice. aioresponses is supposed to be
+        # able to let you set repeat=2 and then it only repeats that response
+        # twice, but there appears to be a bug that means that if you use any
+        # number of repeats, it will just repeat that response forever. So for
+        # now, we are using two explicit post mocks, and then one that repeats
+        # forever after that.
+        mocked.post(f"http://{IP_ADDR}/api/info/get",
+                    payload={},
+                    status=200,
+                    repeat=True)
+        with pytest.raises(ConnectionError):
+            await basic_hub.retrieve_mac_address(retries=1)
+        ret = await basic_hub.retrieve_mac_address(retries=5)
         assert ret is False
 
 
@@ -113,8 +127,7 @@ async def test_setup_success(basic_hub):
         mocked.post(f"http://{IP_ADDR}/api/config/set", status=200)
 
         # Mock _get_device_info
-        mocked.post(f"http://{IP_ADDR}/api/info/get",
-                    payload=HUB_INFO_PAYLOAD)
+        mocked.post(f"http://{IP_ADDR}/api/info/get", payload=HUB_INFO_PAYLOAD)
 
         await basic_hub.setup(TEST_API_KEY, TEST_SERVER)
 
@@ -135,15 +148,28 @@ async def test_setup_failure_config_get(basic_hub):
                         "api_key": TEST_API_KEY
                     },
                     status=400)
+        mocked.post(f"http://{IP_ADDR}/api/config/get",
+                    payload={
+                        "hub": {},
+                        "api_key": TEST_API_KEY
+                    },
+                    status=400)
+        mocked.post(f"http://{IP_ADDR}/api/config/get",
+                    payload=None,
+                    status=200,
+                    repeat=True)
 
         # Mock _get_device_info
         mocked.post(f"http://{IP_ADDR}/api/info/get",
                     payload=HUB_INFO_PAYLOAD,
-                    status=200)
+                    status=200,
+                    repeat=True)
 
-        ret = await basic_hub.setup(TEST_API_KEY, TEST_SERVER)
-
+        with pytest.raises(ConnectionError):
+            ret = await basic_hub.setup(TEST_API_KEY, TEST_SERVER, retries=1)
+        ret = await basic_hub.setup(TEST_API_KEY, TEST_SERVER, retries=5)
         assert ret is False
+
 
 @pytest.mark.asyncio
 async def test_setup_failure_config_set(basic_hub):
@@ -155,18 +181,24 @@ async def test_setup_failure_config_set(basic_hub):
                         "hub": {},
                         "api_key": TEST_API_KEY
                     },
-                    status=200)
+                    status=200,
+                    repeat=True)
 
         mocked.post(f"http://{IP_ADDR}/api/config/set", status=400)
+        mocked.post(f"http://{IP_ADDR}/api/config/set", status=400)
+        mocked.post(f"http://{IP_ADDR}/api/config/set",
+                    status=200,
+                    repeat=True)
 
         # Mock _get_device_info
         mocked.post(f"http://{IP_ADDR}/api/info/get",
                     payload=HUB_INFO_PAYLOAD,
-                    status=200)
-
-        ret = await basic_hub.setup(TEST_API_KEY, TEST_SERVER)
-
-        assert ret is False
+                    status=200,
+                    repeat=True)
+        with pytest.raises(ConnectionError):
+            ret = await basic_hub.setup(TEST_API_KEY, TEST_SERVER, retries=1)
+        ret = await basic_hub.setup(TEST_API_KEY, TEST_SERVER, retries=3)
+        assert ret is True
 
 
 @pytest.mark.asyncio
@@ -217,21 +249,33 @@ async def test_setup_failure_no_info(basic_hub):
                     payload={
                         "hub": {},
                         "api_key": TEST_API_KEY
-                    })
+                    },
+                    repeat=True)
 
-        mocked.post(f"http://{IP_ADDR}/api/config/set", status=200)
+        mocked.post(f"http://{IP_ADDR}/api/config/set",
+                    status=200,
+                    repeat=True)
 
         # Mock _get_device_info
         mocked.post(f"http://{IP_ADDR}/api/info/get",
                     payload=HUB_INFO_PAYLOAD,
                     status=400)
+        mocked.post(f"http://{IP_ADDR}/api/info/get",
+                    payload=HUB_INFO_PAYLOAD,
+                    status=400)
+        mocked.post(f"http://{IP_ADDR}/api/info/get",
+                    payload=None,
+                    status=200,
+                    repeat=True)
 
-        await basic_hub.setup(TEST_API_KEY, TEST_SERVER)
+        with pytest.raises(ConnectionError):
+            await basic_hub.setup(TEST_API_KEY, TEST_SERVER, retries=1)
+        await basic_hub.setup(TEST_API_KEY, TEST_SERVER, retries=1)
 
-        assert basic_hub.info is None
         assert basic_hub.num_actuators is None
         assert basic_hub.num_sensors is None
         assert basic_hub.is_ac is None
+        assert basic_hub.info is None
 
 
 @pytest.mark.asyncio
@@ -248,8 +292,8 @@ async def test_request_update_fail(basic_hub):
     """Test the _request_update method sends the update request to the device."""
     with aioresponses() as mocked:
         mocked.get(f"http://{IP_ADDR}/api/update/send", status=400)
-
-        await basic_hub.request_update()
+        with pytest.raises(ConnectionError):
+            await basic_hub.request_update()
 
 
 @pytest.mark.asyncio
@@ -266,11 +310,14 @@ async def test_set_actuator(basic_hub):
 @pytest.mark.asyncio
 async def test_set_actuator_fail(basic_hub):
     """Test the _request_update method sends the update request to the device."""
-    with pytest.raises(ConnectionError):
-        with aioresponses() as mocked:
-            mocked.post(f"http://{IP_ADDR}/api/actuators/set", status=400)
-
-            await basic_hub.set_actuator(0, 0, 60)
+    with aioresponses() as mocked:
+        mocked.post(f"http://{IP_ADDR}/api/actuators/set", status=400)
+        mocked.post(f"http://{IP_ADDR}/api/actuators/set", status=400)
+        mocked.post(f"http://{IP_ADDR}/api/actuators/set", status=200)
+        with pytest.raises(ConnectionError):
+            await basic_hub.set_actuator(0, 0, 60, retries=1)
+        ret = await basic_hub.set_actuator(0, 0, 60, retries=1)
+        assert ret is True
 
 
 @pytest.mark.asyncio
@@ -289,25 +336,20 @@ async def test_actuator_states(basic_hub):
 @pytest.mark.asyncio
 async def test_actuator_states_fail(basic_hub):
     """Test the _request_update method sends the update request to the device."""
-    with pytest.raises(AttributeError):
-        with aioresponses() as mocked:
-            mocked.get(f"http://{IP_ADDR}/api/actuators/status",
-                       status=200,
-                       payload={})
-
-            await basic_hub.actuator_states()
-
-
-@pytest.mark.asyncio
-async def test_actuator_states_fail_connect(basic_hub):
-    """Test the _request_update method sends the update request to the device."""
-    with pytest.raises(ConnectionError):
-        with aioresponses() as mocked:
-            mocked.get(f"http://{IP_ADDR}/api/actuators/status",
-                       status=400,
-                       payload={})
-
-            await basic_hub.actuator_states()
+    with aioresponses() as mocked:
+        mocked.get(f"http://{IP_ADDR}/api/actuators/status",
+                   status=400,
+                   payload={})
+        mocked.get(f"http://{IP_ADDR}/api/actuators/status",
+                   status=400,
+                   payload={})
+        mocked.get(f"http://{IP_ADDR}/api/actuators/status",
+                   status=200,
+                   payload={})
+        with pytest.raises(ConnectionError):
+            await basic_hub.actuator_states(retries=1)
+        with pytest.raises(AttributeError):
+            await basic_hub.actuator_states(retries=1)
 
 
 @pytest.mark.asyncio
