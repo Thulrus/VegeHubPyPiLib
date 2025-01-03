@@ -24,6 +24,8 @@ If you ever make changes to the strings.json file, you will have to update the `
 
 While working on your integration, if you make changes to the VegeHub package that is hosted on PyPi (this package), you will need to publish the changes to PyPi (see [here](#publishing-this-library)), then you will need to change the package version in your integration's `mainfest.py` file, then you will usually want to run `pip install vegehub -U` in the terminal of the HA dev container, so that it pulls the latest version of the package.
 
+Testing the integration can be done by running the command `pytest ./tests/components/vegehub/ --cov=homeassistant.components.vegehub --cov-report term-missing -vv` in the dev container.
+
 ### Committing
 
 Before submitting your code, in the dev container you will want to open a terminal so that you can run `python3 -m script.gen_requirements_all`, which updates the HA system to include any resources your integration requires, and `python3 -m script.hassfest`, which updates the HA internals so that they will see your integration. These are documented in the [development checklist](https://developers.home-assistant.io/docs/development_checklist).
