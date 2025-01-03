@@ -36,8 +36,13 @@ class VegeHub():
         return self._unique_id
 
     @property
+    def url(self) -> str | None:
+        """Property to retrieve a URL to reach this hub."""
+        return f"http://{self._ip_address}"
+
+    @property
     def info(self) -> dict | None:
-        """Property to retrieve IP address."""
+        """Property to retrieve hub info."""
         return self._info
 
     @property
@@ -49,14 +54,21 @@ class VegeHub():
 
     @property
     def num_actuators(self) -> int | None:
-        """The number of sensors channels on this hub."""
+        """The number of actuator channels on this hub."""
         if self._info:
             return int(self._info["hub"]["num_actuators"] or 0)
         return None
 
     @property
+    def sw_version(self) -> str | None:
+        """Property to retrieve the version of the software running on this hub."""
+        if self._info:
+            return self._info["hub"]["version"]
+        return None
+
+    @property
     def is_ac(self) -> bool | None:
-        """The number of sensors channels on this hub."""
+        """Property to return whether or not this is an AC powered hub."""
         if self._info:
             return bool(self._info["hub"]["is_ac"])
         return None

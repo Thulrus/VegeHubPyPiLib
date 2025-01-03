@@ -10,6 +10,7 @@ TEST_MAC = "AA:BB:CC:DD:EE:FF"
 TEST_MAC_SHORT = "AABBCCDDEEFF"
 NUM_CHANNELS = 4
 NUM_ACTUATORS = 2
+SW_VER = "3.4.5"
 IS_AC = False
 TEST_API_KEY = "1234567890ABCD"
 TEST_SERVER = "http://example.com"
@@ -34,7 +35,7 @@ HUB_INFO_PAYLOAD = {
         "error_message": 0,
         "num_channels": NUM_CHANNELS,
         "num_actuators": NUM_ACTUATORS,
-        "version": "5.1.2",
+        "version": SW_VER,
         "agenda": 1,
         "batt_v": 9.0,
         "num_vsens": 0,
@@ -135,6 +136,8 @@ async def test_setup_success(basic_hub):
         assert basic_hub.num_actuators == NUM_ACTUATORS
         assert basic_hub.num_sensors == NUM_CHANNELS
         assert basic_hub.is_ac == IS_AC
+        assert basic_hub.url == (f"http://{IP_ADDR}")
+        assert basic_hub.sw_version == SW_VER
 
 
 @pytest.mark.asyncio
@@ -276,6 +279,7 @@ async def test_setup_failure_no_info(basic_hub):
         assert basic_hub.num_sensors is None
         assert basic_hub.is_ac is None
         assert basic_hub.info is None
+        assert basic_hub.sw_version is None
 
 
 @pytest.mark.asyncio
