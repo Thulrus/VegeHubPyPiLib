@@ -13,11 +13,12 @@ class VegeHub():
     def __init__(self,
                  ip_address: str,
                  mac_address: str = "",
-                 unique_id: str = "") -> None:
+                 unique_id: str = "",
+                 info: dict[Any, Any] | None = None) -> None:
         self._ip_address: str = ip_address
         self._mac_address: str = mac_address
         self._unique_id: str = unique_id
-        self._info: dict[Any, Any] | None = None
+        self._info = info
         self.entities: dict[Any, Any] = {}
 
     @property
