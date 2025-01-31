@@ -1,8 +1,9 @@
 """Tests for helpers.py."""
 
 import pytest
-from vegehub.helpers import vh400_transform, therm200_transform  
+from vegehub.helpers import vh400_transform, therm200_transform, update_data_to_latest_dict
 
+UPDATE_DATA = {"api_key":"","mac":"7C9EBD4B49D8","error_code":0,"sensors":[{"slot":1,"samples":[{"v":1.5,"t":"2025-01-15T16:51:23Z"}]},{"slot":2,"samples":[{"v":1.45599997,"t":"2025-01-15T16:51:23Z"}]},{"slot":3,"samples":[{"v":1.330000043,"t":"2025-01-15T16:51:23Z"}]},{"slot":4,"samples":[{"v":0.075999998,"t":"2025-01-15T16:51:23Z"}]},{"slot":5,"samples":[{"v":9.314800262,"t":"2025-01-15T16:51:23Z"}]}],"send_time":1736959883,"wifi_str":-27}
 
 @pytest.mark.parametrize(
     "input_value, expected_output",
@@ -85,3 +86,9 @@ def test_therm200_transform_extreme_floats():
     """Test extreme float values."""
     assert pytest.approx(therm200_transform(1e-10), rel=1e-4) == -40.0
     assert pytest.approx(therm200_transform(1e10), rel=1e1) == 416699999.960
+
+def test_update_data_converter():
+    """Test the update data converter."""
+    data = update_data_to_latest_dict(UPDATE_DATA)
+    assert data["7c9ebd4b49d8_1"] == 1.5
+    assert data["7c9ebd4b49d8_5"] == 9.314800262

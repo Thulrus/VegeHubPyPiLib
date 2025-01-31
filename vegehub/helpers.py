@@ -1,4 +1,5 @@
 """Helper file containing data transformations."""
+from typing import Any
 
 def vh400_transform(value: int | str | float) -> float | None:
     """Perform a piecewise linear transformation on the input value.
@@ -56,3 +57,16 @@ def therm200_transform(value: int | str | float) -> float | None:
         return None
 
     return (41.6700 * float_value) - 40.0000
+
+def update_data_to_latest_dict(data: dict[str,Any]) -> dict[str,Any]:
+    """Accepts raw update data and returns a dict of the latest values of each sensor."""
+    sensor_data = {}
+    # Process sensor data
+    if "sensors" in data and "mac" in data:
+        for sensor in data["sensors"]:
+            slot = sensor.get("slot")
+            latest_sample = sensor["samples"][-1]
+            value = latest_sample["v"]
+            entity_id = f"{data["mac"]}_{slot}".lower()
+            sensor_data[entity_id] = value
+    return sensor_data

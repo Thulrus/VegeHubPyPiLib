@@ -50,28 +50,28 @@ class VegeHub():
     def num_sensors(self) -> int | None:
         """The number of sensors channels on this hub."""
         if self._info:
-            return int(self._info["hub"]["num_channels"] or 0)
+            return int(self._info["num_channels"] or 0)
         return None
 
     @property
     def num_actuators(self) -> int | None:
         """The number of actuator channels on this hub."""
         if self._info:
-            return int(self._info["hub"]["num_actuators"] or 0)
+            return int(self._info["num_actuators"] or 0)
         return None
 
     @property
     def sw_version(self) -> str | None:
         """Property to retrieve the version of the software running on this hub."""
         if self._info:
-            return self._info["hub"]["version"]
+            return self._info["version"]
         return None
 
     @property
     def is_ac(self) -> bool | None:
         """Property to return whether or not this is an AC powered hub."""
         if self._info:
-            return bool(self._info["hub"]["is_ac"])
+            return bool(self._info["is_ac"])
         return None
 
     async def request_update(self) -> bool:
@@ -152,7 +152,7 @@ class VegeHub():
         """Fetch the current configuration from the device."""
         url = f"http://{self._ip_address}/api/info/get"
 
-        payload: dict[Any, Any] = {"hub": []}
+        payload: dict[Any, Any] = {"hub": [], "wifi": []}
         async with (
                 aiohttp.ClientSession() as session,
                 session.post(url, json=payload) as response,
@@ -164,8 +164,15 @@ class VegeHub():
 
             # Parse the response JSON
             info_data = await response.json()
-            _LOGGER.info("Received info from %s", self._ip_address)
-            return info_data
+            if info_data:
+                if "wifi" in info_data and not self._mac_address:
+                    self._mac_address = (
+                        info_data.get("wifi", {}).get("mac_addr").replace(":", "").upper()
+                    )
+                if "hub" in info_data:
+                    _LOGGER.info("Received info from %s", self._ip_address)
+                    return info_data["hub"]
+            return None
 
     async def _get_device_config(self) -> dict | None:
         """Fetch the current configuration from the device."""

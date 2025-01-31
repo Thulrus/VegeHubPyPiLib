@@ -42,6 +42,14 @@ HUB_INFO_PAYLOAD = {
         "is_ac": 0,
         "has_sd": 0,
         "on_ap": 0
+    },
+    "wifi": {
+        "ssid": "YourWiFiName",
+        "strength": "-29",
+        "chan": "4",
+        "ip": IP_ADDR,
+        "status": "3",
+        "mac_addr": TEST_MAC
     }
 }
 WIFI_INFO_PAYLOAD = {
@@ -132,7 +140,7 @@ async def test_setup_success(basic_hub):
 
         await basic_hub.setup(TEST_API_KEY, TEST_SERVER)
 
-        assert basic_hub.info == HUB_INFO_PAYLOAD
+        assert basic_hub.info == HUB_INFO_PAYLOAD["hub"]
         assert basic_hub.num_actuators == NUM_ACTUATORS
         assert basic_hub.num_sensors == NUM_CHANNELS
         assert basic_hub.is_ac == IS_AC
