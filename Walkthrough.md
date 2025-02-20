@@ -50,6 +50,10 @@ HA has excellent documentation on all of this, and much more, [here](https://dev
 
 ## Publishing this library
 
+This project uses [Poetry](https://python-poetry.org/) for dependency management and publishing. Make sure that poetry is installed before continuing.
+
+If you haven't set up this project, you will need to run `poetry install` in the base directory. That will install all dependencies and set up a virtual environment automatically.
+
 Before publishing this library be sure to run the following commands:
 
 - `poetry run pylint vegehub`
@@ -60,6 +64,11 @@ Before publishing this library be sure to run the following commands:
 Then, if all those pass, change the version number in `pyproject.toml`, and run:
 
 - `poetry build`
+
+Now you can publish to PyPi by running
+
 - `poetry publish`
+
+If that fails, you might need to take care of authentication first. You will have to get on PyPi and get an API key, then run `poetry config pypi-token.pypi <your-api-token>`, then run `poetry publish` again.
 
 And don't forget to commit to GitHub.

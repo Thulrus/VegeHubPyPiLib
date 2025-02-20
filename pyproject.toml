@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "vegehub"
-version = "0.1.18"
+version = "0.1.19"
 description = "A basic package for simplifying interactions with the Vegetronix VegeHub"
 authors = ["GhoweVege <85890024+GhoweVege@users.noreply.github.com>"]
 readme = "README.md"

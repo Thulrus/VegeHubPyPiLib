@@ -84,7 +84,7 @@ class VegeHub():
         while True:
             try:
                 ret = await self._get_device_mac()
-            except ConnectionError:
+            except (ConnectionError, TimeoutError):
                 if retries <= 0:
                     raise
                 retries -= 1
@@ -107,7 +107,7 @@ class VegeHub():
         while True:
             try:
                 await self._set_actuator(state, slot, duration)
-            except ConnectionError:
+            except (ConnectionError, TimeoutError):
                 if retries <= 0:
                     raise
                 retries -= 1
@@ -122,7 +122,7 @@ class VegeHub():
         while True:
             try:
                 ret = await self._get_actuator_info()
-            except ConnectionError:
+            except (ConnectionError, TimeoutError):
                 if retries <= 0:
                     raise
                 retries -= 1
@@ -141,7 +141,8 @@ class VegeHub():
         # Modify the config with the new API key and server address
         modified_config = self._modify_device_config(config_data, api_key,
                                                      server_address)
-        ret = await self._set_device_config_with_retries(modified_config, retries)
+        ret = await self._set_device_config_with_retries(
+            modified_config, retries)
 
         if ret is not None:
             await self._get_device_info_with_retries(retries)
@@ -166,9 +167,8 @@ class VegeHub():
             info_data = await response.json()
             if info_data:
                 if "wifi" in info_data and not self._mac_address:
-                    self._mac_address = (
-                        info_data.get("wifi", {}).get("mac_addr").replace(":", "").upper()
-                    )
+                    self._mac_address = (info_data.get(
+                        "wifi", {}).get("mac_addr").replace(":", "").upper())
                 if "hub" in info_data:
                     _LOGGER.info("Received info from %s", self._ip_address)
                     return info_data["hub"]
@@ -241,7 +241,7 @@ class VegeHub():
             try:
                 # Fetch current config from the device
                 config_data = await self._get_device_config()
-            except ConnectionError:
+            except (ConnectionError, TimeoutError):
                 if retries <= 0:
                     raise
                 retries -= 1
@@ -264,7 +264,7 @@ class VegeHub():
             try:
                 # Send the modified config back to the device
                 ret = await self._set_device_config(modified_config)
-            except ConnectionError:
+            except (ConnectionError, TimeoutError):
                 if retries <= 0:
                     raise
                 retries -= 1
@@ -283,7 +283,7 @@ class VegeHub():
         while True:
             try:
                 self._info = await self._get_device_info()
-            except ConnectionError:
+            except (ConnectionError, TimeoutError):
                 if retries <= 0:
                     raise
                 retries -= 1
