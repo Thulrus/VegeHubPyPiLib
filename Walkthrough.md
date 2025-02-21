@@ -54,6 +54,8 @@ This project uses [Poetry](https://python-poetry.org/) for dependency management
 
 If you haven't set up this project, you will need to run `poetry install` in the base directory. That will install all dependencies and set up a virtual environment automatically.
 
+For convenience, you may want to change the Python interpreter to the virtual environment created by Poetry so that VSCode isn't constantly telling you that it can't find your imports. To do this, use the command `poetry env info` to see the virtual environment info or `poetry env info --path` to directly get the path to the environment. Then hit `ctrl+shift+p` to enter the command prompt for VSCode, start typing `Python: Select Interpreter` and click that when it comes up. In there you should have the option to enter the path to the interpreter you want to use, click that, and enter the path to the Poetry virtual environment.
+
 Before publishing this library be sure to run the following commands:
 
 - `poetry run pylint vegehub`

@@ -154,10 +154,9 @@ class VegeHub():
         url = f"http://{self._ip_address}/api/info/get"
 
         payload: dict[Any, Any] = {"hub": [], "wifi": []}
-        async with (
-                aiohttp.ClientSession() as session,
-                session.post(url, json=payload) as response,
-        ):
+        session = aiohttp.ClientSession()
+        try:
+            response = await session.post(url, json=payload)
             if response.status != 200:
                 _LOGGER.error("Failed to get config from %s: HTTP %s", url,
                               response.status)
@@ -173,6 +172,12 @@ class VegeHub():
                     _LOGGER.info("Received info from %s", self._ip_address)
                     return info_data["hub"]
             return None
+        except (aiohttp.ClientConnectorError, Exception) as err:
+            _LOGGER.error("Connection error getting info from %s: %s", url,
+                          err)
+            raise ConnectionError from err
+        finally:
+            await session.close()
 
     async def _get_device_config(self) -> dict | None:
         """Fetch the current configuration from the device."""
@@ -180,10 +185,9 @@ class VegeHub():
 
         payload: dict[Any, Any] = {"hub": [], "api_key": []}
 
-        async with (
-                aiohttp.ClientSession() as session,
-                session.post(url, json=payload) as response,
-        ):
+        session = aiohttp.ClientSession()
+        try:
+            response = await session.post(url, json=payload)
             if response.status != 200:
                 _LOGGER.error("Failed to get config from %s: HTTP %s", url,
                               response.status)
@@ -191,6 +195,12 @@ class VegeHub():
 
             # Parse the response JSON
             return await response.json()
+        except (aiohttp.ClientConnectorError, Exception) as err:
+            _LOGGER.error("Connection error getting config from %s: %s", url,
+                          err)
+            raise ConnectionError from err
+        finally:
+            await session.close()
 
     def _modify_device_config(self, config_data: dict | None, new_key: str,
                               server_url: str) -> dict | None:
@@ -224,14 +234,20 @@ class VegeHub():
         if config_data is None:
             return False
 
-        async with (
-                aiohttp.ClientSession() as session,
-                session.post(url, json=config_data) as response,
-        ):
+        session = aiohttp.ClientSession()
+
+        try:
+            response = await session.post(url, json=config_data)
             if response.status != 200:
                 _LOGGER.error("Failed to set config at %s: HTTP %s", url,
                               response.status)
                 raise ConnectionError
+        except (aiohttp.ClientConnectorError, Exception) as err:
+            _LOGGER.error("Connection error setting config on %s: %s", url,
+                          err)
+            raise ConnectionError from err
+        finally:
+            await session.close()
         return True
 
     async def _get_device_config_with_retries(self,
@@ -300,13 +316,22 @@ class VegeHub():
     async def _request_update(self) -> bool:
         """Ask the device to send in a full update of data to Home Assistant."""
         url = f"http://{self._ip_address}/api/update/send"
+        session = aiohttp.ClientSession()
 
-        async with aiohttp.ClientSession() as session, session.get(
-                url) as response:
+        try:
+            response = await session.get(url)
             if response.status != 200:
                 _LOGGER.error("Failed to ask for update from %s: HTTP %s", url,
                               response.status)
                 raise ConnectionError
+        except (aiohttp.ClientConnectorError, Exception) as err:
+            _LOGGER.error(
+                "Connection error while requesting update from %s: %s", url,
+                err)
+            raise ConnectionError from err
+        finally:
+            await session.close()
+
         return True
 
     async def _get_device_mac(self) -> bool:
@@ -315,12 +340,11 @@ class VegeHub():
 
         # Prepare the JSON payload for the POST request
         payload: dict[Any, Any] = {"wifi": []}
+        session = aiohttp.ClientSession()
 
         # Use aiohttp to send the POST request with the JSON body
-        async with (
-            aiohttp.ClientSession() as session,
-            session.post(url, json=payload) as response,
-        ):
+        try:
+            response = await session.post(url, json=payload)
             if response.status != 200:
                 _LOGGER.error("Failed to get config from %s: HTTP %s", url,
                               response.status)
@@ -335,6 +359,12 @@ class VegeHub():
                 return False
             _LOGGER.info("%s MAC address: %s", self._ip_address, mac_address)
             self._mac_address = mac_address.replace(":", "").upper()
+        except (aiohttp.ClientConnectorError, Exception) as err:
+            _LOGGER.error("Connection error getting mac address from %s: %s",
+                          url, err)
+            raise ConnectionError from err
+        finally:
+            await session.close()
         return True
 
     async def _set_actuator(self, state: int, slot: int,
@@ -349,11 +379,11 @@ class VegeHub():
             "state": state,
         }
 
+        session = aiohttp.ClientSession()
+
         # Use aiohttp to send the POST request with the JSON body
-        async with (
-            aiohttp.ClientSession() as session,
-            session.post(url, json=payload) as response,
-        ):
+        try:
+            response = await session.post(url, json=payload)
             if response.status != 200:
                 _LOGGER.error(
                     "Failed to set actuator state on %s: HTTP %s",
@@ -362,17 +392,24 @@ class VegeHub():
                 )
                 raise ConnectionError
             return True
+        except (aiohttp.ClientConnectorError, Exception) as err:
+            _LOGGER.error("Connection error setting actuator on %s: %s", url,
+                          err)
+            raise ConnectionError from err
+        finally:
+            await session.close()
 
     async def _get_actuator_info(self) -> list:
         """Fetch the current status of the actuators."""
         url = f"http://{self._ip_address}/api/actuators/status"
         _LOGGER.info("Retrieving actuator status from %s", self._ip_address)
+        session = aiohttp.ClientSession()
 
         # Use aiohttp to send the POST request with the JSON body
-        async with aiohttp.ClientSession() as session, session.get(
-            url) as response:
+        try:
+            response = await session.get(url)
             if response.status != 200:
-                _LOGGER.error("Failed to status from %s: HTTP %s", url,
+                _LOGGER.error("Failed to get status from %s: HTTP %s", url,
                               response.status)
                 raise ConnectionError
 
@@ -385,3 +422,11 @@ class VegeHub():
                     self._ip_address)
                 raise AttributeError
             return actuators
+        except AttributeError:
+            raise
+        except (aiohttp.ClientConnectorError, Exception) as err:
+            _LOGGER.error("Connection error getting actuator info from %s: %s",
+                          url, err)
+            raise ConnectionError from err
+        finally:
+            await session.close()

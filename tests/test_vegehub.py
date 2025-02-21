@@ -1,8 +1,14 @@
 """Basic tests for VegeHub package."""
 
+from unittest.mock import AsyncMock, patch, Mock
+
+import aiohttp
 import pytest
 from aioresponses import aioresponses
-from vegehub.vegehub import VegeHub  # Update import as necessary based on your project structure
+
+from vegehub.vegehub import VegeHub
+
+from aiohttp.client_exceptions import ClientConnectorError, ConnectionKey
 
 IP_ADDR = "192.168.0.100"
 UNIQUE_ID = "aabbccddeeff"
@@ -370,3 +376,55 @@ async def test_add_get_entity(basic_hub):
     basic_hub.entities["entity_id"] = {"dummy": "data"}
     entity = basic_hub.entities["entity_id"]
     assert entity.get("dummy") == "data"
+
+
+@pytest.mark.asyncio
+async def test_request_update_client_connector_error_fail(basic_hub):
+    """Test the _request_update method handles a connection failure properly."""
+    with patch("aiohttp.ClientSession.get",
+               new_callable=AsyncMock) as mock_get:
+        key = Mock()
+        os_error = OSError("Connection failed")
+        mock_get.side_effect = ClientConnectorError(connection_key=key,
+                                                    os_error=os_error)
+        with pytest.raises(ConnectionError):
+            await basic_hub.request_update()
+
+
+@pytest.mark.asyncio
+async def test_request_mac_client_connector_error_fail(basic_hub):
+    """Test the _request_update method handles a connection failure properly."""
+    with patch("aiohttp.ClientSession.get",
+               new_callable=AsyncMock) as mock_get:
+        key = Mock()
+        os_error = OSError("Connection failed")
+        mock_get.side_effect = ClientConnectorError(connection_key=key,
+                                                    os_error=os_error)
+        with pytest.raises(ConnectionError):
+            await basic_hub.retrieve_mac_address()
+
+
+@pytest.mark.asyncio
+async def test_set_actuator_client_connector_error_fail(basic_hub):
+    """Test the _request_update method handles a connection failure properly."""
+    with patch("aiohttp.ClientSession.get",
+               new_callable=AsyncMock) as mock_get:
+        key = Mock()
+        os_error = OSError("Connection failed")
+        mock_get.side_effect = ClientConnectorError(connection_key=key,
+                                                    os_error=os_error)
+        with pytest.raises(ConnectionError):
+            await basic_hub.set_actuator(0, 0, 60, retries=1)
+
+
+@pytest.mark.asyncio
+async def test_get_actuator_client_connector_error_fail(basic_hub):
+    """Test the _request_update method handles a connection failure properly."""
+    with patch("aiohttp.ClientSession.get",
+               new_callable=AsyncMock) as mock_get:
+        key = Mock()
+        os_error = OSError("Connection failed")
+        mock_get.side_effect = ClientConnectorError(connection_key=key,
+                                                    os_error=os_error)
+        with pytest.raises(ConnectionError):
+            await basic_hub.actuator_states(retries=1)
