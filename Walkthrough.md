@@ -73,4 +73,6 @@ Now you can publish to PyPi by running
 
 If that fails, you might need to take care of authentication first. You will have to get on PyPi and get an API key, then run `poetry config pypi-token.pypi <your-api-token>`, then run `poetry publish` again.
 
+It looks like it's also possible for the API token to get messed up. It is located in `/home/user/.config/pypoetry/auth.toml` and I had a problem where poetry kept failing to publish, even after inputting the API token multiple times and trying multiple tokens. I went to this file to check that the token was there, and it turned out it was only saving part of the token for some reason. Still not sure why. And also not sure why how it got altered from its previous working state.
+
 And don't forget to commit to GitHub.

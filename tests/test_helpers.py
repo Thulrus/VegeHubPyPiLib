@@ -4,6 +4,7 @@ import pytest
 from vegehub.helpers import vh400_transform, therm200_transform, update_data_to_latest_dict, update_data_to_ha_dict
 
 UPDATE_DATA = {"api_key":"","mac":"7C9EBD4B49D8","error_code":0,"sensors":[{"slot":1,"samples":[{"v":1.5,"t":"2025-01-15T16:51:23Z"}]},{"slot":2,"samples":[{"v":1.45599997,"t":"2025-01-15T16:51:23Z"}]},{"slot":3,"samples":[{"v":1.330000043,"t":"2025-01-15T16:51:23Z"}]},{"slot":4,"samples":[{"v":0.075999998,"t":"2025-01-15T16:51:23Z"}]},{"slot":5,"samples":[{"v":9.314800262,"t":"2025-01-15T16:51:23Z"}]},{"slot":6,"samples":[{"v":1,"t":"2025-01-15T16:51:23Z"}]},{"slot":7,"samples":[{"v":0,"t":"2025-01-15T16:51:23Z"}]}],"send_time":1736959883,"wifi_str":-27}
+UPDATE_DATA_2 = {'api_key': '', 'mac': '7C9EBD4B49D8', 'error_code': 0, 'sensors': [{'slot': 1, 'samples': [{'v': 1.518, 't': '2025-05-16T20:38:40Z'}]}, {'slot': 2, 'samples': [{'v': 1.498, 't': '2025-05-16T20:38:40Z'}]}, {'slot': 3, 'samples': [{'v': 0.026, 't': '2025-05-16T20:38:40Z'}]}, {'slot': 4, 'samples': [{'v': 2.346, 't': '2025-05-16T20:38:40Z'}]}, {'slot': 5, 'samples': [{'v': 9.3588, 't': '2025-05-16T20:38:40Z'}]}], 'send_time': 1747427920, 'wifi_str': -28}
 UPDATE_DATA_ALL_ACTUATORS = {"api_key":"","mac":"7C9EBD4B49D8","error_code":0,"sensors":[{"slot":1,"samples":[{"v":1,"t":"2025-01-15T16:51:23Z"}]},{"slot":2,"samples":[{"v":0,"t":"2025-01-15T16:51:23Z"}]},{"slot":3,"samples":[{"v":1,"t":"2025-01-15T16:51:23Z"}]},{"slot":4,"samples":[{"v":0,"t":"2025-01-15T16:51:23Z"}]}],"send_time":1736959883,"wifi_str":-27}
 
 @pytest.mark.parametrize(
@@ -94,23 +95,44 @@ def test_update_data_converter():
     assert data["7c9ebd4b49d8_1"] == 1.5
     assert data["7c9ebd4b49d8_5"] == 9.314800262
 
-def test_update_ha_data_converter_bad_data():
-    """Test the update data converter."""
-    data = update_data_to_ha_dict(UPDATE_DATA, 4, 2)
+def test_update_ha_data_converter():
+    """Test the home assistant update data converter."""
+    data = update_data_to_ha_dict(UPDATE_DATA, 4, 2, False)
     assert data["analog_0"] == 1.5
     assert data["battery"] == 9.314800262
     assert data["actuator_0"] == 1
     assert data["actuator_1"] == 0
 
-def test_update_ha_data_converter():
+def test_update_ha_data_converter_2():
+    """Test the home assistant update data converter."""
+    # Test with UPDATE_DATA_2, which has no actuators in it, 
+    # even though this Hub has actuators defined
+    data = update_data_to_ha_dict(UPDATE_DATA_2, 4, 1, False)
+    assert data["analog_0"] == 1.518
+    assert data["battery"] == 9.3588
+
+def test_update_ha_data_converter_bad_data():
     """Test the update data converter."""
-    data = update_data_to_ha_dict({}, 4, 2)
+    data = update_data_to_ha_dict({}, 4, 2, False)
+    assert not data
+    assert "battery" not in data
+
+def test_update_ha_data_converter_no_sensors():
+    """Test the update data converter."""
+    data = update_data_to_ha_dict({"mac":"7C9EBD4B49D8","sensors":[]}, 4, 2, False)
+    assert not data
+    assert "battery" not in data
+
+def test_update_ha_data_converter_no_samples():
+    """Test the update data converter."""
+    data = update_data_to_ha_dict(
+        {"mac":"7C9EBD4B49D8","sensors":[{"slot":1,"samples":[]}]}, 4, 2, False)
     assert not data
     assert "battery" not in data
 
 def test_update_ha_data_converter_all_actuators():
     """Test the update data converter."""
-    data = update_data_to_ha_dict(UPDATE_DATA_ALL_ACTUATORS, 0, 4)
+    data = update_data_to_ha_dict(UPDATE_DATA_ALL_ACTUATORS, 0, 4, True)
     assert "battery" not in data
     assert "analog_0" not in data
     assert data["actuator_0"] == 1
