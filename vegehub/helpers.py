@@ -67,6 +67,49 @@ def update_data_to_latest_dict(data: dict[str,Any]) -> dict[str,Any]:
             slot = sensor.get("slot")
             latest_sample = sensor["samples"][-1]
             value = latest_sample["v"]
-            entity_id = f"{data["mac"]}_{slot}".lower()
+            entity_id = f"{data['mac']}_{slot}".lower()
             sensor_data[entity_id] = value
+    return sensor_data
+
+def update_data_to_ha_dict(
+    data: dict[str, Any],
+    num_sensors: int,
+    num_actuators: int
+) -> dict[str, Any]:
+    """Transform raw update data into a dictionary of sensor and actuator values.
+    
+    Args:
+        data: Raw data dictionary containing sensors and mac address
+        num_sensors: Number of analog sensors to process
+        num_actuators: Number of actuators to process
+    
+    Returns:
+        Dictionary mapping entity IDs to their values
+    """
+    if not ("sensors" in data and "mac" in data):
+        return {}
+
+    sensor_data = {}
+    sensors = sorted(data["sensors"], key=lambda x: x.get("slot", 0))
+    current_position = 0
+
+    # Process analog sensors
+    for i in range(num_sensors):
+        value = sensors[current_position]["samples"][-1]["v"]
+        sensor_data[f"analog_{i}"] = value
+        current_position += 1
+
+    # Process battery if present
+    remaining_items = len(sensors) - current_position
+    if remaining_items > num_actuators:
+        value = sensors[current_position]["samples"][-1]["v"]
+        sensor_data["battery"] = value
+        current_position += 1
+
+    # Process actuators
+    for i in range(num_actuators):
+        value = sensors[current_position]["samples"][-1]["v"]
+        sensor_data[f"actuator_{i}"] = value
+        current_position += 1
+
     return sensor_data

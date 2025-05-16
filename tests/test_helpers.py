@@ -1,9 +1,10 @@
 """Tests for helpers.py."""
 
 import pytest
-from vegehub.helpers import vh400_transform, therm200_transform, update_data_to_latest_dict
+from vegehub.helpers import vh400_transform, therm200_transform, update_data_to_latest_dict, update_data_to_ha_dict
 
-UPDATE_DATA = {"api_key":"","mac":"7C9EBD4B49D8","error_code":0,"sensors":[{"slot":1,"samples":[{"v":1.5,"t":"2025-01-15T16:51:23Z"}]},{"slot":2,"samples":[{"v":1.45599997,"t":"2025-01-15T16:51:23Z"}]},{"slot":3,"samples":[{"v":1.330000043,"t":"2025-01-15T16:51:23Z"}]},{"slot":4,"samples":[{"v":0.075999998,"t":"2025-01-15T16:51:23Z"}]},{"slot":5,"samples":[{"v":9.314800262,"t":"2025-01-15T16:51:23Z"}]}],"send_time":1736959883,"wifi_str":-27}
+UPDATE_DATA = {"api_key":"","mac":"7C9EBD4B49D8","error_code":0,"sensors":[{"slot":1,"samples":[{"v":1.5,"t":"2025-01-15T16:51:23Z"}]},{"slot":2,"samples":[{"v":1.45599997,"t":"2025-01-15T16:51:23Z"}]},{"slot":3,"samples":[{"v":1.330000043,"t":"2025-01-15T16:51:23Z"}]},{"slot":4,"samples":[{"v":0.075999998,"t":"2025-01-15T16:51:23Z"}]},{"slot":5,"samples":[{"v":9.314800262,"t":"2025-01-15T16:51:23Z"}]},{"slot":6,"samples":[{"v":1,"t":"2025-01-15T16:51:23Z"}]},{"slot":7,"samples":[{"v":0,"t":"2025-01-15T16:51:23Z"}]}],"send_time":1736959883,"wifi_str":-27}
+UPDATE_DATA_ALL_ACTUATORS = {"api_key":"","mac":"7C9EBD4B49D8","error_code":0,"sensors":[{"slot":1,"samples":[{"v":1,"t":"2025-01-15T16:51:23Z"}]},{"slot":2,"samples":[{"v":0,"t":"2025-01-15T16:51:23Z"}]},{"slot":3,"samples":[{"v":1,"t":"2025-01-15T16:51:23Z"}]},{"slot":4,"samples":[{"v":0,"t":"2025-01-15T16:51:23Z"}]}],"send_time":1736959883,"wifi_str":-27}
 
 @pytest.mark.parametrize(
     "input_value, expected_output",
@@ -92,3 +93,28 @@ def test_update_data_converter():
     data = update_data_to_latest_dict(UPDATE_DATA)
     assert data["7c9ebd4b49d8_1"] == 1.5
     assert data["7c9ebd4b49d8_5"] == 9.314800262
+
+def test_update_ha_data_converter_bad_data():
+    """Test the update data converter."""
+    data = update_data_to_ha_dict(UPDATE_DATA, 4, 2)
+    assert data["analog_0"] == 1.5
+    assert data["battery"] == 9.314800262
+    assert data["actuator_0"] == 1
+    assert data["actuator_1"] == 0
+
+def test_update_ha_data_converter():
+    """Test the update data converter."""
+    data = update_data_to_ha_dict({}, 4, 2)
+    assert not data
+    assert "battery" not in data
+
+def test_update_ha_data_converter_all_actuators():
+    """Test the update data converter."""
+    data = update_data_to_ha_dict(UPDATE_DATA_ALL_ACTUATORS, 0, 4)
+    assert "battery" not in data
+    assert "analog_0" not in data
+    assert data["actuator_0"] == 1
+    assert data["actuator_1"] == 0
+    assert data["actuator_3"] == 0
+    assert "actuator_4" not in data
+    
