@@ -24,7 +24,7 @@ If you ever make changes to the strings.json file, you will have to update the `
 
 While working on your integration, if you make changes to the VegeHub package that is hosted on PyPi (this package), you will need to publish the changes to PyPi (see [here](#publishing-this-library)), then you will need to change the package version in your integration's `mainfest.py` file, then you will usually want to run `pip install vegehub -U` in the terminal of the HA dev container, so that it pulls the latest version of the package.
 
-Testing the integration can be done by running the command `pytest ./tests/components/vegehub/ --cov=homeassistant.components.vegehub --cov-report term-missing -vv` in the dev container.
+Testing the integration can be done by running the command `pytest ./tests/components/vegehub/ --cov=homeassistant.components.vegehub --cov-report term-missing -vv` in the dev container. Sometimes you will have to update the snapshots first if you have made changes to the sensors. The command for that is `pytest tests/components/vegehub/test_sensor.py --snapshot-update`
 
 ### Committing
 
