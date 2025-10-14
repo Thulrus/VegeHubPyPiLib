@@ -20,6 +20,29 @@ mypy = "^1.13.0"
 pytest-cov = "^6.0.0"
 pylint = "^3.3.1"
 pytest = "^8.3.3"
+zeroconf = "^0.136.2"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["vegehub"]
+omit = [
+    "integration_test.py",
+    "tests/*",
+    "*/tests/*"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
 
 [build-system]
 requires = ["poetry-core"]

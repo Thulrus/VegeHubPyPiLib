@@ -124,6 +124,17 @@
             "problemMatcher": []
         },
         {
+            "label": "Run Integration Tests",
+            "type": "shell",
+            "command": "poetry run python integration_test.py",
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Clean Build Artifacts",
             "type": "shell",
             "command": "rm -rf dist/ build/ *.egg-info htmlcov/ .coverage .pytest_cache/ .mypy_cache/",

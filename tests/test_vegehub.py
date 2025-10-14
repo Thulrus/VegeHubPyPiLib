@@ -4,6 +4,7 @@
 from unittest.mock import AsyncMock, patch, Mock
 
 import pytest
+import pytest_asyncio
 from aiohttp.client_exceptions import ClientConnectorError
 from aioresponses import aioresponses
 
@@ -69,10 +70,13 @@ WIFI_INFO_PAYLOAD = {
 }
 
 
-@pytest.fixture(name="basic_hub")
-def fixture_basic_hub():
+@pytest_asyncio.fixture(name="basic_hub")
+async def fixture_basic_hub():
     """Fixture for creating a VegeHub instance."""
-    return VegeHub(ip_address=IP_ADDR, unique_id=UNIQUE_ID)
+    hub = VegeHub(ip_address=IP_ADDR, unique_id=UNIQUE_ID)
+    yield hub
+    # Close the session if it was created
+    await hub.close()
 
 
 @pytest.mark.asyncio
