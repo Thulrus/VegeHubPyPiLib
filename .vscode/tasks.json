@@ -1,0 +1,157 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run Tests",
+            "type": "shell",
+            "command": "poetry run pytest",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Tests with Coverage",
+            "type": "shell",
+            "command": "poetry run pytest --cov=vegehub --cov-report=html --cov-report=term",
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Linter (pylint)",
+            "type": "shell",
+            "command": "poetry run pylint vegehub tests",
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Type Checker (mypy)",
+            "type": "shell",
+            "command": "poetry run mypy vegehub",
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run All Checks",
+            "type": "shell",
+            "command": "poetry run pytest && poetry run pylint vegehub tests && poetry run mypy vegehub",
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Package",
+            "type": "shell",
+            "command": "poetry build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Install Dependencies",
+            "type": "shell",
+            "command": "poetry install",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Update Dependencies",
+            "type": "shell",
+            "command": "poetry update",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Publish to PyPI (Test)",
+            "type": "shell",
+            "command": "poetry publish --build --repository testpypi",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Publish to PyPI",
+            "type": "shell",
+            "command": "poetry publish --build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run testrun.py",
+            "type": "shell",
+            "command": "poetry run python testrun.py",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Clean Build Artifacts",
+            "type": "shell",
+            "command": "rm -rf dist/ build/ *.egg-info htmlcov/ .coverage .pytest_cache/ .mypy_cache/",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Show Package Info",
+            "type": "shell",
+            "command": "poetry show",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Check Poetry Config",
+            "type": "shell",
+            "command": "poetry check",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

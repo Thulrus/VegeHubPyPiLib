@@ -1,14 +1,13 @@
 """Basic tests for VegeHub package."""
+# pylint: disable=protected-access
 
 from unittest.mock import AsyncMock, patch, Mock
 
-import aiohttp
 import pytest
+from aiohttp.client_exceptions import ClientConnectorError
 from aioresponses import aioresponses
 
 from vegehub.vegehub import VegeHub
-
-from aiohttp.client_exceptions import ClientConnectorError, ConnectionKey
 
 IP_ADDR = "192.168.0.100"
 UNIQUE_ID = "aabbccddeeff"
@@ -348,7 +347,7 @@ async def test_actuator_states(basic_hub):
 
         ret = await basic_hub.actuator_states()
 
-        assert ret[0]["state"] is 0
+        assert ret[0]["state"] == 0
 
 
 @pytest.mark.asyncio
@@ -428,3 +427,247 @@ async def test_get_actuator_client_connector_error_fail(basic_hub):
                                                     os_error=os_error)
         with pytest.raises(ConnectionError):
             await basic_hub.actuator_states(retries=1)
+
+
+@pytest.mark.asyncio
+async def test_setup_with_endpoints_new_format(basic_hub):
+    """Test the setup method with new endpoints format."""
+    existing_endpoint = {
+        "id": 1,
+        "name": "VegeCloud",
+        "type": "vegecloud",
+        "enabled": True,
+        "connection_method": "wifi",
+        "config": {
+            "api_key": "0000000000000000",
+            "route_key": "34315633",
+            "server_url": "https://api.vegecloud.com/v2"
+        }
+    }
+
+    with aioresponses() as mocked:
+        # Mock _get_device_config with new endpoints format
+        mocked.post(f"http://{IP_ADDR}/api/config/get",
+                    payload={
+                        "endpoints": [existing_endpoint],
+                        "hub": {},
+                        "api_key": TEST_API_KEY
+                    })
+
+        mocked.post(f"http://{IP_ADDR}/api/config/set", status=200)
+
+        # Mock _get_device_info
+        mocked.post(f"http://{IP_ADDR}/api/info/get", payload=HUB_INFO_PAYLOAD)
+
+        await basic_hub.setup(TEST_API_KEY, TEST_SERVER)
+
+        assert basic_hub.info == HUB_INFO_PAYLOAD["hub"]
+
+
+@pytest.mark.asyncio
+async def test_modify_device_config_with_endpoints(basic_hub):
+    """Test _modify_device_config with new endpoints format creates a new endpoint."""
+    config_data = {
+        "endpoints": [{
+            "id": 1,
+            "name": "VegeCloud",
+            "type": "vegecloud",
+            "enabled": True,
+            "connection_method": "wifi",
+            "config": {
+                "api_key": "0000000000000000",
+                "route_key": "34315633",
+                "server_url": "https://api.vegecloud.com/v2"
+            }
+        }],
+        "hub": {},
+        "api_key":
+        "oldkey"
+    }
+
+    result = basic_hub._modify_device_config(config_data, TEST_API_KEY,
+                                             TEST_SERVER)
+
+    assert result is not None
+    assert "endpoints" in result
+    assert len(result["endpoints"]) == 2
+
+    # Check the new endpoint was added correctly
+    new_endpoint = result["endpoints"][1]
+    assert new_endpoint["id"] == 2
+    assert new_endpoint["name"] == "HomeAssistant"
+    assert new_endpoint["type"] == "custom"
+    assert new_endpoint["enabled"] is True
+    assert new_endpoint["connection_method"] == "wifi"
+    assert new_endpoint["config"]["api_key"] == TEST_API_KEY
+    assert new_endpoint["config"]["data_format"] == "json"
+    assert new_endpoint["config"]["url"] == TEST_SERVER
+
+
+@pytest.mark.asyncio
+async def test_modify_device_config_with_empty_endpoints(basic_hub):
+    """Test _modify_device_config with empty endpoints array."""
+    config_data = {"endpoints": [], "hub": {}, "api_key": "oldkey"}
+
+    result = basic_hub._modify_device_config(config_data, TEST_API_KEY,
+                                             TEST_SERVER)
+
+    assert result is not None
+    assert "endpoints" in result
+    assert len(result["endpoints"]) == 1
+
+    # Check the new endpoint was added correctly
+    new_endpoint = result["endpoints"][0]
+    assert new_endpoint["id"] == 1
+    assert new_endpoint["name"] == "HomeAssistant"
+    assert new_endpoint["type"] == "custom"
+    assert new_endpoint["enabled"] is True
+    assert new_endpoint["connection_method"] == "wifi"
+    assert new_endpoint["config"]["api_key"] == TEST_API_KEY
+    assert new_endpoint["config"]["data_format"] == "json"
+    assert new_endpoint["config"]["url"] == TEST_SERVER
+
+
+@pytest.mark.asyncio
+async def test_modify_device_config_old_format_fallback(basic_hub):
+    """Test _modify_device_config falls back to old format when endpoints not present."""
+    config_data = {"hub": {}, "api_key": "oldkey"}
+
+    result = basic_hub._modify_device_config(config_data, TEST_API_KEY,
+                                             TEST_SERVER)
+
+    assert result is not None
+    assert "endpoints" not in result
+    assert result["api_key"] == TEST_API_KEY
+    assert result["hub"]["server_url"] == TEST_SERVER
+    assert result["hub"]["server_type"] == 3
+
+
+@pytest.mark.asyncio
+async def test_modify_device_config_old_format_missing_api_key(basic_hub):
+    """Test _modify_device_config handles missing api_key in old format."""
+    config_data = {"hub": {}}
+
+    result = basic_hub._modify_device_config(config_data, TEST_API_KEY,
+                                             TEST_SERVER)
+
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_modify_device_config_old_format_missing_hub(basic_hub):
+    """Test _modify_device_config handles missing hub section in old format."""
+    config_data = {"api_key": "oldkey"}
+
+    result = basic_hub._modify_device_config(config_data, TEST_API_KEY,
+                                             TEST_SERVER)
+
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_modify_device_config_none_input(basic_hub):
+    """Test _modify_device_config handles None input."""
+    result = basic_hub._modify_device_config(None, TEST_API_KEY, TEST_SERVER)
+
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_setup_with_multiple_existing_endpoints(basic_hub):
+    """Test setup with multiple existing endpoints in the array."""
+    existing_endpoints = [{
+        "id": 1,
+        "name": "VegeCloud",
+        "type": "vegecloud",
+        "enabled": True,
+        "connection_method": "wifi",
+        "config": {
+            "api_key": "key1",
+            "route_key": "route1",
+            "server_url": "https://api.vegecloud.com/v2"
+        }
+    }, {
+        "id": 2,
+        "name": "CustomServer",
+        "type": "custom",
+        "enabled": False,
+        "connection_method": "wifi",
+        "config": {
+            "api_key": "key2",
+            "data_format": "json",
+            "url": "https://custom.server.com"
+        }
+    }]
+
+    with aioresponses() as mocked:
+        # Mock _get_device_config with multiple existing endpoints
+        mocked.post(f"http://{IP_ADDR}/api/config/get",
+                    payload={
+                        "endpoints": existing_endpoints.copy(),
+                        "hub": {},
+                        "api_key": TEST_API_KEY
+                    })
+
+        mocked.post(f"http://{IP_ADDR}/api/config/set", status=200)
+
+        # Mock _get_device_info
+        mocked.post(f"http://{IP_ADDR}/api/info/get", payload=HUB_INFO_PAYLOAD)
+
+        await basic_hub.setup(TEST_API_KEY, TEST_SERVER)
+
+        assert basic_hub.info == HUB_INFO_PAYLOAD["hub"]
+
+
+@pytest.mark.asyncio
+async def test_modify_device_config_preserves_existing_endpoints(basic_hub):
+    """Test that _modify_device_config preserves all existing endpoints."""
+    existing_endpoints = [{
+        "id": 1,
+        "name": "VegeCloud",
+        "type": "vegecloud",
+        "enabled": True,
+        "connection_method": "wifi",
+        "config": {
+            "api_key": "key1",
+            "route_key": "route1",
+            "server_url": "https://api.vegecloud.com/v2"
+        }
+    }, {
+        "id": 2,
+        "name": "CustomServer",
+        "type": "custom",
+        "enabled": False,
+        "connection_method": "wifi",
+        "config": {
+            "api_key": "key2",
+            "data_format": "json",
+            "url": "https://custom.server.com"
+        }
+    }]
+
+    config_data = {
+        "endpoints": existing_endpoints.copy(),
+        "hub": {},
+        "api_key": "oldkey"
+    }
+
+    result = basic_hub._modify_device_config(config_data, TEST_API_KEY,
+                                             TEST_SERVER)
+
+    assert result is not None
+    assert len(result["endpoints"]) == 3
+
+    # Verify existing endpoints are preserved
+    assert result["endpoints"][0]["id"] == 1
+    assert result["endpoints"][0]["name"] == "VegeCloud"
+    assert result["endpoints"][1]["id"] == 2
+    assert result["endpoints"][1]["name"] == "CustomServer"
+
+    # Verify new endpoint was added
+    assert result["endpoints"][2]["id"] == 3
+    assert result["endpoints"][2]["name"] == "HomeAssistant"
+    assert result["endpoints"][2]["type"] == "custom"
+    assert result["endpoints"][2]["config"]["api_key"] == TEST_API_KEY
+    assert result["endpoints"][2]["config"]["data_format"] == "json"
+    assert result["endpoints"][2]["config"]["url"] == TEST_SERVER

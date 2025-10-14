@@ -210,6 +210,25 @@ class VegeHub():
         if config_data is None:
             return None
 
+        # Check if the new endpoints format is present
+        if "endpoints" in config_data:
+            # New format: create a new endpoint and add it to the array
+            new_endpoint = {
+                "id": len(config_data["endpoints"]) + 1,
+                "name": "HomeAssistant",
+                "type": "custom",
+                "enabled": True,
+                "connection_method": "wifi",
+                "config": {
+                    "api_key": new_key,
+                    "data_format": "json",
+                    "url": server_url
+                }
+            }
+            config_data["endpoints"].append(new_endpoint)
+            return config_data
+
+        # Old format: fall back to the previous behavior for older VegeHubs
         # Assuming the API key should be added to the 'hub' section, modify as necessary
         if "api_key" in config_data:
             config_data["api_key"] = new_key
