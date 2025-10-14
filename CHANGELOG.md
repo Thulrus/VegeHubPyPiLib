@@ -95,9 +95,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.7] - 2024-11-11
 
 ### Added
-- Walkthrough.md documentation file
-
-### Changed
+- walkthrough.md documentation file
 - Created python-package.yml for GitHub Actions
 - Testing GitHub Actions workflow
 
@@ -107,17 +105,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.5] - 2024-11-05
 
 ### Changed
-- Version bump to 0.1.5
+- Updated aiohttp dependency to ^3.10.8
 
 ## [0.1.4] - 2024-11-05
 
+### Added
+- Support for passing MAC address to constructor
+
 ### Changed
-- Version bump to 0.1.4
+- Simplified MAC address handling (removed separate simple_mac_address property)
+- Updated documentation for setup method
 
 ## [0.1.3] - 2024-11-05
 
-### Changed
-- Version bump to 0.1.3
+### Fixed
+- False positive pylint error on fixtures
 
 ## [0.1.0] - 2024-11-05
 
@@ -131,6 +133,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Poetry-based project structure
 - README with basic usage instructions
 - GPL-3.0 license
-
-### Fixed
-- False positive pylint error on fixtures
