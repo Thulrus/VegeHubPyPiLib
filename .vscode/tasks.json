@@ -106,7 +106,7 @@
         {
             "label": "Publish to PyPI",
             "type": "shell",
-            "command": "poetry publish --build",
+            "command": "poetry publish",
             "presentation": {
                 "reveal": "always",
                 "panel": "new"
