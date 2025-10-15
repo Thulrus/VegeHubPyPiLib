@@ -94,29 +94,9 @@
             "problemMatcher": []
         },
         {
-            "label": "Publish to PyPI (Test)",
-            "type": "shell",
-            "command": "poetry publish --build --repository testpypi",
-            "presentation": {
-                "reveal": "always",
-                "panel": "new"
-            },
-            "problemMatcher": []
-        },
-        {
             "label": "Publish to PyPI",
             "type": "shell",
             "command": "poetry publish",
-            "presentation": {
-                "reveal": "always",
-                "panel": "new"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "Run testrun.py",
-            "type": "shell",
-            "command": "poetry run python testrun.py",
             "presentation": {
                 "reveal": "always",
                 "panel": "new"
