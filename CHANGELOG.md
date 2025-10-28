@@ -5,6 +5,25 @@ All notable changes to the VegeHub PyPI package will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.26] - 2025-10-15
+
+### Added
+- Comprehensive integration test suite with 8 tests covering real device scenarios
+- Session reuse capability to improve performance and eliminate connection warnings
+- Support for mDNS device discovery
+- Extensive AI-generated documentation in `doc/AI/` directory
+- GitHub Copilot instructions for improved development experience
+- VS Code tasks configuration for common development operations
+
+### Changed
+- Enhanced VegeHub class to support optional session parameter for better resource management
+- Improved firmware version detection logic for old vs new config formats
+
+### Fixed
+- Unclosed connection warnings through session reuse pattern
+- Firmware type detection using proper type checking instead of key existence
+- mDNS discovery integration with asyncio event loop
+
 ## [0.1.25] - 2025-10-14
 
 ### Added
