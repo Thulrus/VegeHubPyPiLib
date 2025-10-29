@@ -60,7 +60,7 @@ Added status badges to show:
    ```
 
 2. **Watch Your First CI Run**
-   - Go to https://github.com/GhoweVege/VegeHubPyPiLib/actions
+   - Go to https://github.com/Thulrus/VegeHubPyPiLib/actions
    - You'll see the CI workflow running
    - Click on it to see real-time logs
 
@@ -148,7 +148,7 @@ These should still be run manually before releases.
 
 Check your CI status at any time:
 - Repository page: See badge in README
-- Actions tab: https://github.com/GhoweVege/VegeHubPyPiLib/actions
+- Actions tab: https://github.com/Thulrus/VegeHubPyPiLib/actions
 - Commit history: ✓ or ✗ next to each commit
 - Pull requests: Status checks section
 

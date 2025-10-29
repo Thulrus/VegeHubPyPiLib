@@ -1,7 +1,7 @@
 # Vegetronix VegeHub
 
-[![CI](https://github.com/GhoweVege/VegeHubPyPiLib/actions/workflows/ci.yml/badge.svg)](https://github.com/GhoweVege/VegeHubPyPiLib/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/GhoweVege/VegeHubPyPiLib/branch/master/graph/badge.svg)](https://codecov.io/gh/GhoweVege/VegeHubPyPiLib)
+[![CI](https://github.com/Thulrus/VegeHubPyPiLib/actions/workflows/ci.yml/badge.svg)](https://github.com/Thulrus/VegeHubPyPiLib/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/github/Thulrus/VegeHubPyPiLib/graph/badge.svg?token=I509176F9P)](https://codecov.io/github/Thulrus/VegeHubPyPiLib)
 [![Python Version](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![Poetry](https://img.shields.io/badge/poetry-managed-blue)](https://python-poetry.org/)
 
