@@ -11,6 +11,43 @@ This package was written for use with the VegeHub integration for [Home Assistan
 
 Development on this library was done using Python Poetry for dependency management and building/publishing. Find more info about how to use it [here](https://python-poetry.org/docs/basic-usage/).
 
+## Development Setup
+
+### Quick Start (Recommended)
+
+For a fresh clone, run the setup script to install everything automatically:
+
+```bash
+./setup-dev.fish
+```
+
+This will:
+- Install all dependencies with Poetry
+- Install pre-commit hooks (runs tests/linting before each commit)
+- Run initial checks to set up environments
+
+### Manual Setup
+
+If you prefer manual setup:
+
+```bash
+# Install dependencies
+poetry install
+
+# Install pre-commit hooks
+poetry run pre-commit install
+```
+
+### Pre-Commit Hooks
+
+This project uses pre-commit hooks to ensure code quality **before** you commit. Every commit automatically runs:
+- Code formatting (Black, isort)
+- All unit tests (pytest)
+- Linting (pylint)
+- Type checking (mypy)
+
+If any check fails, the commit is blocked until you fix the issue. This catches problems early!
+
 ## Development
 
 ### Running Unit Tests
@@ -57,4 +94,3 @@ The integration tests will:
 - Provide a detailed report of test results
 
 **Note:** Integration tests are separate from unit tests and require physical hardware. They are designed to be run manually when you have access to a VegeHub device.
-

@@ -59,11 +59,11 @@ if __name__ == "__main__":
         print("\n" + "=" * 60)
         print("VegeHub Integration Test Suite")
         print("=" * 60)
-        
+
         # Run device discovery in synchronous context
         # BEFORE starting asyncio event loop
         discovered_devices = discover_vegehubs()
-        
+
         # NOW enter async context with discovered devices
         asyncio.run(main(discovered_devices))
     except KeyboardInterrupt:
@@ -76,7 +76,7 @@ And update main() to accept the devices:
 ```python
 async def main(devices: list[dict]):
     """Main entry point - now receives pre-discovered devices."""
-    
+
     # Let user select a device
     selected = select_device(devices)
     # ... rest of the async code
@@ -85,7 +85,7 @@ async def main(devices: list[dict]):
 ## Why This Works
 
 1. **Discovery runs first** - In normal synchronous Python context
-2. **Zeroconf threads work properly** - No event loop interference  
+2. **Zeroconf threads work properly** - No event loop interference
 3. **Results passed to async code** - Once discovery is complete
 4. **Async code does what it's meant for** - Network I/O with VegeHub device
 

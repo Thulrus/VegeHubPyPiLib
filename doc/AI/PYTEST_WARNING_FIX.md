@@ -4,7 +4,7 @@
 
 When running pytest, there was a warning:
 ```
-integration_test.py:203: PytestCollectionWarning: cannot collect test class 'TestResults' 
+integration_test.py:203: PytestCollectionWarning: cannot collect test class 'TestResults'
 because it has a __init__ constructor
 ```
 
@@ -25,7 +25,7 @@ Renamed the class from `TestResults` to `IntegrationTestResults` to avoid the py
    # Before
    class TestResults:
        """Track test results."""
-   
+
    # After
    class IntegrationTestResults:
        """Track integration test results."""
@@ -35,7 +35,7 @@ Renamed the class from `TestResults` to `IntegrationTestResults` to avoid the py
    ```python
    # Before
    async def run_integration_tests(...) -> TestResults:
-   
+
    # After
    async def run_integration_tests(...) -> IntegrationTestResults:
    ```
@@ -44,7 +44,7 @@ Renamed the class from `TestResults` to `IntegrationTestResults` to avoid the py
    ```python
    # Before
    results = TestResults()
-   
+
    # After
    results = IntegrationTestResults()
    ```
@@ -54,7 +54,7 @@ Renamed the class from `TestResults` to `IntegrationTestResults` to avoid the py
    # Before
    Returns:
        TestResults object
-   
+
    # After
    Returns:
        IntegrationTestResults object

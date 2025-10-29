@@ -78,11 +78,11 @@ Added status badges to show:
 
 Every time you push code or someone creates a PR:
 
-✅ All tests pass on Python 3.12 and 3.13  
-✅ Code coverage is maintained (currently 100%)  
-✅ No linting errors (pylint passes)  
-✅ No type errors (mypy passes)  
-✅ Package builds successfully  
+✅ All tests pass on Python 3.12 and 3.13
+✅ Code coverage is maintained (currently 100%)
+✅ No linting errors (pylint passes)
+✅ No type errors (mypy passes)
+✅ Package builds successfully
 
 ### If CI Fails
 

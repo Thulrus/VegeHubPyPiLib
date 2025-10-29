@@ -2,6 +2,28 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Setup Development Environment",
+            "type": "shell",
+            "command": "./setup-dev.fish",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new",
+                "focus": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Pre-Commit Hooks",
+            "type": "shell",
+            "command": "poetry run pre-commit run --all-files",
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Run Tests",
             "type": "shell",
             "command": "poetry run pytest",

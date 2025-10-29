@@ -68,7 +68,7 @@ The ServiceBrowser needs a brief moment to:
    ```python
    # Before:
    devices = discover_vegehubs(timeout=5)
-   
+
    # After:
    devices = discover_vegehubs()  # Uses default 10 seconds
    ```

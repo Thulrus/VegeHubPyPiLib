@@ -26,29 +26,29 @@ These documents chronicle the iterative process of building comprehensive integr
 - **REAL_MDNS_FIX.md** - Final fix for mDNS discovery
 - **ASYNCIO_THREADING_FIX.md** - Solution to asyncio/threading conflict with zeroconf
 
-**Problem**: mDNS discovery worked in standalone scripts but failed in integration test  
-**Root Cause**: zeroconf library uses threading which conflicts with asyncio event loop  
+**Problem**: mDNS discovery worked in standalone scripts but failed in integration test
+**Root Cause**: zeroconf library uses threading which conflicts with asyncio event loop
 **Solution**: Run mDNS discovery BEFORE `asyncio.run()` in synchronous context
 
 ### 2. Config Format Detection
 - **CONFIG_FORMAT_FIX.md** - Fixed payload to request all config formats
 
-**Problem**: Old firmware config not detected correctly  
-**Root Cause**: Payload only requested old format fields  
+**Problem**: Old firmware config not detected correctly
+**Root Cause**: Payload only requested old format fields
 **Solution**: Request all formats: `{"hub":[], "api_key":[], "endpoints":[]}`
 
 ### 3. Firmware Type Detection
 - **FIRMWARE_DETECTION_FIX.md** - Fixed logic to distinguish firmware versions
 
-**Problem**: Old firmware incorrectly identified as new firmware  
-**Root Cause**: Checking `"endpoints" in config` returns True even when value is `null`  
+**Problem**: Old firmware incorrectly identified as new firmware
+**Root Cause**: Checking `"endpoints" in config` returns True even when value is `null`
 **Solution**: Use `isinstance(endpoints, list)` to distinguish `None` vs `[]`
 
 ### 4. Test Verification Logic
 - **TEST6_VERIFICATION_FIX.md** - Fixed test to properly fail when verification fails
 
-**Problem**: Test 6 passed even when actuator state verification failed  
-**Root Cause**: Forgot to set `test_passed=False` when verification fails  
+**Problem**: Test 6 passed even when actuator state verification failed
+**Root Cause**: Forgot to set `test_passed=False` when verification fails
 **Solution**: Added `test_passed=False` and increased duration from 0 to 5 seconds
 
 ### 5. Unclosed Connection Warnings
@@ -57,14 +57,14 @@ These documents chronicle the iterative process of building comprehensive integr
 - **SESSION_REUSE_FIX.md** - Final solution using session reuse pattern
 - **SESSION_REUSE_SUMMARY.md** - Summary of the session reuse architecture
 
-**Problem**: Multiple "Unclosed connection" warnings appearing during tests  
-**Root Cause**: Creating a new `ClientSession` for every HTTP request  
+**Problem**: Multiple "Unclosed connection" warnings appearing during tests
+**Root Cause**: Creating a new `ClientSession` for every HTTP request
 **Solution**: Added optional session parameter to VegeHub, allowing session reuse across all requests
 
 ### 6. Pytest Warnings
 - **PYTEST_WARNING_FIX.md** - Fixed pytest-asyncio configuration warnings
 
-**Problem**: Pytest warning about unset asyncio_default_fixture_loop_scope  
+**Problem**: Pytest warning about unset asyncio_default_fixture_loop_scope
 **Solution**: (Still present in current output, low priority)
 
 ## Key Learnings

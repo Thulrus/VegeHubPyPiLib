@@ -88,7 +88,7 @@ The general pattern now used throughout:
 async def _some_http_function(self) -> SomeType:
     """Do something over HTTP."""
     url = f"http://{self._ip_address}/api/endpoint"
-    
+
     async with aiohttp.ClientSession() as session:
         try:
             response = await session.post(url, json=payload)

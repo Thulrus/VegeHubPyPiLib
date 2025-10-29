@@ -46,7 +46,7 @@ payload: dict[Any, Any] = {"hub": [], "api_key": [], "endpoints": []}
 The VegeHub `/api/config/get` endpoint uses the POST payload to determine what configuration sections to return:
 
 - If you request `{"hub": [], "api_key": []}`, you get old format data
-- If you request `{"endpoints": []}`, you get new format data  
+- If you request `{"endpoints": []}`, you get new format data
 - If you request `{"hub": [], "api_key": [], "endpoints": []}`, you get whichever format the device supports
 
 By requesting all formats, the device will return its native configuration format, allowing the library to properly detect which firmware version is running.

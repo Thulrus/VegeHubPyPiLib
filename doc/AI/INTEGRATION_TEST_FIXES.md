@@ -5,7 +5,7 @@
 ### 1. mDNS Discovery Not Working in Integration Test
 **Problem**: The diagnostic tool found VegeHub devices, but the integration test didn't.
 
-**Root Cause**: 
+**Root Cause**:
 - ServiceBrowser callbacks are asynchronous
 - The test was closing the zeroconf connection too quickly
 - No progress feedback during discovery
@@ -19,7 +19,7 @@
 ### 2. Test 3 Failed (Request Device Info Update)
 **Problem**: Test was calling `request_update()` which doesn't populate `hub.info`.
 
-**Root Cause**: 
+**Root Cause**:
 - `request_update()` calls `/api/update/send` which tells the hub to send data to a server
 - It doesn't retrieve or store device info
 - The test assumed it would populate hub.info
@@ -32,7 +32,7 @@
 ### 3. Test 4 Failed (Property Accessors)
 **Problem**: All property accessors returned None.
 
-**Root Cause**: 
+**Root Cause**:
 - Test 3 failed, so `hub.info` was never populated
 - Property accessors depend on `hub.info` being set
 
@@ -43,7 +43,7 @@
 ### 4. Test 6 Skipped (Actuator Control)
 **Problem**: Test skipped even though actuator states were successfully retrieved.
 
-**Root Cause**: 
+**Root Cause**:
 - Test checked `hub.num_actuators` which comes from `hub.info`
 - Since Test 3 failed, `hub.num_actuators` was None
 - Even though Test 5 successfully retrieved 1 actuator
@@ -56,7 +56,7 @@
 ### 5. Diagnostic Tool Crashed
 **Problem**: Script crashed when trying to scan `_vege._tcp.` (without `.local.`).
 
-**Root Cause**: 
+**Root Cause**:
 - Zeroconf library requires service names to end with `.local.`
 - Test was trying invalid service names
 
@@ -100,7 +100,7 @@ Running the integration test should now:
 
 ✅ **All tests should pass** (8 tests):
 1. ✅ Basic properties
-2. ✅ Retrieve MAC address  
+2. ✅ Retrieve MAC address
 3. ✅ Get device info (FIXED)
 4. ✅ Property accessors (FIXED)
 5. ✅ Get actuator states

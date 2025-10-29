@@ -1,5 +1,7 @@
 """Helper file containing data transformations."""
+
 from typing import Any
+
 
 def vh400_transform(value: int | str | float) -> float | None:
     """Perform a piecewise linear transformation on the input value.
@@ -42,10 +44,13 @@ def vh400_transform(value: int | str | float) -> float | None:
         ret = (50.0000 - 40.0000) / (2.2000 - 1.8200) * (float_value - 1.8200) + 40.0000
     elif float_value <= 3.0000:
         # Linear interpolation between (2.2000, 50.0000) and (3.0000, 100.0000)
-        ret = (100.0000 - 50.0000) / (3.0000 - 2.2000) * (float_value - 2.2000) + 50.0000
+        ret = (100.0000 - 50.0000) / (3.0000 - 2.2000) * (
+            float_value - 2.2000
+        ) + 50.0000
 
     # For values greater than 3.0000, return 100.0000
     return ret
+
 
 def therm200_transform(value: int | str | float) -> float | None:
     """Transform to change voltage into degrees celsius."""
@@ -58,7 +63,8 @@ def therm200_transform(value: int | str | float) -> float | None:
 
     return (41.6700 * float_value) - 40.0000
 
-def update_data_to_latest_dict(data: dict[str,Any]) -> dict[str,Any]:
+
+def update_data_to_latest_dict(data: dict[str, Any]) -> dict[str, Any]:
     """Accepts raw update data and returns a dict of the latest values of each sensor."""
     sensor_data = {}
     # Process sensor data
@@ -71,14 +77,12 @@ def update_data_to_latest_dict(data: dict[str,Any]) -> dict[str,Any]:
             sensor_data[entity_id] = value
     return sensor_data
 
+
 def update_data_to_ha_dict(
-    data: dict[str, Any],
-    num_sensors: int,
-    num_actuators: int,
-    is_ac: bool
+    data: dict[str, Any], num_sensors: int, num_actuators: int, is_ac: bool
 ) -> dict[str, Any]:
     """Transform raw update data into a dictionary of sensor and actuator values.
-    
+
     Returns:
         Dictionary mapping entity IDs to their values
     """

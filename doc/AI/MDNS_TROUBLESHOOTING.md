@@ -47,7 +47,7 @@ Some firmware versions might not advertise via mDNS. This is why we added manual
 
 The test looks for `_vege._tcp.local.` but the actual service name might be different.
 
-**Solution**: 
+**Solution**:
 - Run `mdns_diagnostic.py` to see what services are advertised
 - If you find VegeHub under a different name, update `integration_test.py` line 75
 
@@ -99,7 +99,7 @@ VegeHub is on a different network segment or VLAN than your computer.
 
 If running in a container or VM, mDNS packets might not be forwarded.
 
-**Solution**: 
+**Solution**:
 - Run tests on host machine
 - Or use manual IP entry
 

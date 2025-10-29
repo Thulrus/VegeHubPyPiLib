@@ -73,6 +73,29 @@ VegeHubPyPiLib/
 
 ## Testing
 
+### Pre-Commit Hooks (Recommended Workflow)
+This project uses **pre-commit hooks** to catch issues before they reach CI:
+
+```fish
+# Hooks run automatically on every commit
+git commit -m "Your message"
+
+# Run all hooks manually
+poetry run pre-commit run --all-files
+
+# Run hooks on staged files only
+poetry run pre-commit run
+```
+
+Pre-commit automatically runs:
+- **Formatting**: Black (code) and isort (imports)
+- **Tests**: All 70 unit tests with pytest
+- **Linting**: pylint for code quality
+- **Type checking**: mypy for type hints
+- **File checks**: Trailing whitespace, line endings, etc.
+
+If any check fails, the commit is blocked until you fix it. This prevents CI failures.
+
 ### Unit Tests
 Run unit tests with pytest (70 tests, 100% coverage):
 
@@ -171,7 +194,7 @@ from aioresponses import aioresponses
 
 async def test_something():
     with aioresponses() as mocked:
-        mocked.post("http://192.168.0.100/api/info/get", 
+        mocked.post("http://192.168.0.100/api/info/get",
                     payload={"hub": {...}})
         # Test code here
 ```

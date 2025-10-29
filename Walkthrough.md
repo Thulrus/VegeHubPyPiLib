@@ -1,6 +1,61 @@
-# Walkthrough Of Develoment
+# Walkthrough Of Development
 
 This is an attempt to quickly document the process of developing this library, and the corresponding Home Assistant integration.
+
+## VegeHub Library Development
+
+### Initial Setup
+
+After cloning this repository, run the setup script to configure your development environment:
+
+```bash
+./setup-dev.fish
+```
+
+This will:
+- Install all Poetry dependencies
+- Install pre-commit hooks for automatic code quality checks
+- Run initial validation
+
+Alternatively, you can set up manually:
+
+```bash
+poetry install
+poetry run pre-commit install
+```
+
+### Pre-Commit Hooks
+
+The project uses pre-commit hooks to ensure code quality **before** commits reach GitHub. Every commit automatically runs:
+- Code formatting (Black, isort)
+- Unit tests (pytest)
+- Linting (pylint)
+- Type checking (mypy)
+
+If any check fails, the commit is blocked. Fix the issues and try again. This prevents CI failures!
+
+### Making Changes
+
+1. Create a branch for your changes
+2. Make your code changes
+3. Tests run automatically when you commit (via pre-commit hooks)
+4. Push to GitHub (CI runs as final verification)
+
+### Running Tests Manually
+
+```bash
+# Run all unit tests
+poetry run pytest
+
+# Run with coverage
+poetry run pytest --cov=vegehub --cov-report=html --cov-report=term
+
+# Run integration tests (requires real VegeHub device)
+poetry run python integration_test.py
+
+# Run all pre-commit checks manually
+poetry run pre-commit run --all-files
+```
 
 ## Home Assistant
 

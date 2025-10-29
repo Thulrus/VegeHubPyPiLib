@@ -38,7 +38,7 @@ def __init__(self,
 ```python
 async def _get_session(self) -> aiohttp.ClientSession:
     """Get or create a client session.
-    
+
     Returns the session provided in __init__, or creates a new one if needed.
     """
     if self._session is None:
@@ -89,10 +89,10 @@ async def run_integration_tests(...) -> IntegrationTestResults:
     async with aiohttp.ClientSession() as session:
         # Pass session to VegeHub
         hub = VegeHub(ip_address=ip_address, session=session)
-        
+
         # Run all tests (they all reuse the same session)
         # ...
-        
+
         return results
     # Session automatically closed here by context manager
 ```
@@ -149,7 +149,7 @@ This pattern is ideal for Home Assistant integrations:
 class VegeHubDataUpdateCoordinator(DataUpdateCoordinator):
     def __init__(self, hass, session):
         self.session = session
-        
+
     async def _async_update_data(self):
         # Reuse the Home Assistant session
         hub = VegeHub(ip_address=self.ip, session=self.session)
@@ -164,12 +164,12 @@ class VegeHubDataUpdateCoordinator(DataUpdateCoordinator):
 async def main():
     async with aiohttp.ClientSession() as session:
         hub = VegeHub(ip_address="192.168.0.100", session=session)
-        
+
         # Make multiple calls - all reuse the same session
         await hub.retrieve_mac_address()
         info = await hub._get_device_info()
         await hub.setup(api_key="...", server_address="...")
-        
+
     # Session automatically closed when leaving the block
 ```
 

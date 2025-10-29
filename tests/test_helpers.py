@@ -1,144 +1,56 @@
 """Tests for helpers.py."""
 
 import pytest
-from vegehub.helpers import (update_data_to_ha_dict,
-                              update_data_to_latest_dict,
-                              therm200_transform, vh400_transform)
+
+from vegehub.helpers import (
+    therm200_transform,
+    update_data_to_ha_dict,
+    update_data_to_latest_dict,
+    vh400_transform,
+)
 
 UPDATE_DATA = {
-    "api_key":
-    "",
-    "mac":
-    "7C9EBD4B49D8",
-    "error_code":
-    0,
-    "sensors": [{
-        "slot": 1,
-        "samples": [{
-            "v": 1.5,
-            "t": "2025-01-15T16:51:23Z"
-        }]
-    }, {
-        "slot": 2,
-        "samples": [{
-            "v": 1.45599997,
-            "t": "2025-01-15T16:51:23Z"
-        }]
-    }, {
-        "slot": 3,
-        "samples": [{
-            "v": 1.330000043,
-            "t": "2025-01-15T16:51:23Z"
-        }]
-    }, {
-        "slot": 4,
-        "samples": [{
-            "v": 0.075999998,
-            "t": "2025-01-15T16:51:23Z"
-        }]
-    }, {
-        "slot": 5,
-        "samples": [{
-            "v": 9.314800262,
-            "t": "2025-01-15T16:51:23Z"
-        }]
-    }, {
-        "slot": 6,
-        "samples": [{
-            "v": 1,
-            "t": "2025-01-15T16:51:23Z"
-        }]
-    }, {
-        "slot": 7,
-        "samples": [{
-            "v": 0,
-            "t": "2025-01-15T16:51:23Z"
-        }]
-    }],
-    "send_time":
-    1736959883,
-    "wifi_str":
-    -27
+    "api_key": "",
+    "mac": "7C9EBD4B49D8",
+    "error_code": 0,
+    "sensors": [
+        {"slot": 1, "samples": [{"v": 1.5, "t": "2025-01-15T16:51:23Z"}]},
+        {"slot": 2, "samples": [{"v": 1.45599997, "t": "2025-01-15T16:51:23Z"}]},
+        {"slot": 3, "samples": [{"v": 1.330000043, "t": "2025-01-15T16:51:23Z"}]},
+        {"slot": 4, "samples": [{"v": 0.075999998, "t": "2025-01-15T16:51:23Z"}]},
+        {"slot": 5, "samples": [{"v": 9.314800262, "t": "2025-01-15T16:51:23Z"}]},
+        {"slot": 6, "samples": [{"v": 1, "t": "2025-01-15T16:51:23Z"}]},
+        {"slot": 7, "samples": [{"v": 0, "t": "2025-01-15T16:51:23Z"}]},
+    ],
+    "send_time": 1736959883,
+    "wifi_str": -27,
 }
 UPDATE_DATA_2 = {
-    'api_key':
-    '',
-    'mac':
-    '7C9EBD4B49D8',
-    'error_code':
-    0,
-    'sensors': [{
-        'slot': 1,
-        'samples': [{
-            'v': 1.518,
-            't': '2025-05-16T20:38:40Z'
-        }]
-    }, {
-        'slot': 2,
-        'samples': [{
-            'v': 1.498,
-            't': '2025-05-16T20:38:40Z'
-        }]
-    }, {
-        'slot': 3,
-        'samples': [{
-            'v': 0.026,
-            't': '2025-05-16T20:38:40Z'
-        }]
-    }, {
-        'slot': 4,
-        'samples': [{
-            'v': 2.346,
-            't': '2025-05-16T20:38:40Z'
-        }]
-    }, {
-        'slot': 5,
-        'samples': [{
-            'v': 9.3588,
-            't': '2025-05-16T20:38:40Z'
-        }]
-    }],
-    'send_time':
-    1747427920,
-    'wifi_str':
-    -28
+    "api_key": "",
+    "mac": "7C9EBD4B49D8",
+    "error_code": 0,
+    "sensors": [
+        {"slot": 1, "samples": [{"v": 1.518, "t": "2025-05-16T20:38:40Z"}]},
+        {"slot": 2, "samples": [{"v": 1.498, "t": "2025-05-16T20:38:40Z"}]},
+        {"slot": 3, "samples": [{"v": 0.026, "t": "2025-05-16T20:38:40Z"}]},
+        {"slot": 4, "samples": [{"v": 2.346, "t": "2025-05-16T20:38:40Z"}]},
+        {"slot": 5, "samples": [{"v": 9.3588, "t": "2025-05-16T20:38:40Z"}]},
+    ],
+    "send_time": 1747427920,
+    "wifi_str": -28,
 }
 UPDATE_DATA_ALL_ACTUATORS = {
-    "api_key":
-    "",
-    "mac":
-    "7C9EBD4B49D8",
-    "error_code":
-    0,
-    "sensors": [{
-        "slot": 1,
-        "samples": [{
-            "v": 1,
-            "t": "2025-01-15T16:51:23Z"
-        }]
-    }, {
-        "slot": 2,
-        "samples": [{
-            "v": 0,
-            "t": "2025-01-15T16:51:23Z"
-        }]
-    }, {
-        "slot": 3,
-        "samples": [{
-            "v": 1,
-            "t": "2025-01-15T16:51:23Z"
-        }]
-    }, {
-        "slot": 4,
-        "samples": [{
-            "v": 0,
-            "t": "2025-01-15T16:51:23Z"
-        }]
-    }],
-    "send_time":
-    1736959883,
-    "wifi_str":
-    -27
+    "api_key": "",
+    "mac": "7C9EBD4B49D8",
+    "error_code": 0,
+    "sensors": [
+        {"slot": 1, "samples": [{"v": 1, "t": "2025-01-15T16:51:23Z"}]},
+        {"slot": 2, "samples": [{"v": 0, "t": "2025-01-15T16:51:23Z"}]},
+        {"slot": 3, "samples": [{"v": 1, "t": "2025-01-15T16:51:23Z"}]},
+        {"slot": 4, "samples": [{"v": 0, "t": "2025-01-15T16:51:23Z"}]},
+    ],
+    "send_time": 1736959883,
+    "wifi_str": -27,
 }
 
 
@@ -258,10 +170,7 @@ def test_update_ha_data_converter_bad_data():
 
 def test_update_ha_data_converter_no_sensors():
     """Test the update data converter."""
-    data = update_data_to_ha_dict({
-        "mac": "7C9EBD4B49D8",
-        "sensors": []
-    }, 4, 2, False)
+    data = update_data_to_ha_dict({"mac": "7C9EBD4B49D8", "sensors": []}, 4, 2, False)
     assert not data
     assert "battery" not in data
 
@@ -269,13 +178,8 @@ def test_update_ha_data_converter_no_sensors():
 def test_update_ha_data_converter_no_samples():
     """Test the update data converter."""
     data = update_data_to_ha_dict(
-        {
-            "mac": "7C9EBD4B49D8",
-            "sensors": [{
-                "slot": 1,
-                "samples": []
-            }]
-        }, 4, 2, False)
+        {"mac": "7C9EBD4B49D8", "sensors": [{"slot": 1, "samples": []}]}, 4, 2, False
+    )
     assert not data
     assert "battery" not in data
 

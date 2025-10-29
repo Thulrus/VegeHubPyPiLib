@@ -42,10 +42,10 @@ The zeroconf library is designed to handle cleanup automatically when you close 
 def discover_vegehubs(timeout: int = 10) -> list[dict]:
     zeroconf = Zeroconf()
     listener = VegeHubListener()
-    
+
     # Keep browser reference to prevent garbage collection
     browser = ServiceBrowser(zeroconf, "_vege._tcp.local.", listener)  # noqa: F841
-    
+
     try:
         import time
         for i in range(timeout):
@@ -57,7 +57,7 @@ def discover_vegehubs(timeout: int = 10) -> list[dict]:
     finally:
         # Just close zeroconf - it will properly shut down the browser
         zeroconf.close()
-    
+
     return listener.devices
 ```
 

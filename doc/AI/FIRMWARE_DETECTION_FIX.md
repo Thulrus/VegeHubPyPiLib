@@ -58,7 +58,7 @@ if "endpoints" in config_data:
 
 **After:**
 ```python
-if ("endpoints" in config_data and 
+if ("endpoints" in config_data and
     isinstance(config_data.get("endpoints"), list)):
 ```
 
@@ -92,7 +92,7 @@ An empty endpoints array is a valid state for new firmware that hasn't been conf
 # Check if the new endpoints format is present and valid
 # endpoints must be a list (can be empty) for new firmware
 # If endpoints is None or not present, it's old firmware
-if ("endpoints" in config_data and 
+if ("endpoints" in config_data and
     isinstance(config_data.get("endpoints"), list)):
 ```
 
@@ -102,19 +102,19 @@ Updated in **three places**:
 
 **A. Initial firmware detection** (line ~482):
 ```python
-if ("endpoints" in original_config and 
+if ("endpoints" in original_config and
     isinstance(original_config.get("endpoints"), list)):
 ```
 
 **B. Modified config verification** (line ~517):
 ```python
-if ("endpoints" in modified_config and 
+if ("endpoints" in modified_config and
     isinstance(modified_config.get("endpoints"), list)):
 ```
 
 **C. Restoration verification** (line ~556):
 ```python
-if ("endpoints" in original_config and 
+if ("endpoints" in original_config and
     isinstance(original_config.get("endpoints"), list)):
 ```
 

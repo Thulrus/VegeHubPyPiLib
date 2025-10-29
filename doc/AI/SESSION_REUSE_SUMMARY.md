@@ -85,7 +85,7 @@ Total tests: 8
 ## Benefits
 
 1. **Performance**: Connection pooling works across requests (HTTP keep-alive)
-2. **Clean exit**: Single session cleanup via `async with` context manager  
+2. **Clean exit**: Single session cleanup via `async with` context manager
 3. **No warnings**: Guaranteed cleanup before program termination
 4. **Backward compatible**: Session parameter is optional
 5. **Test-friendly**: Easy to mock and clean up in tests
@@ -106,7 +106,7 @@ Following aiohttp documentation:
 
 This is now the recommended pattern for:
 - Integration tests
-- Home Assistant integrations  
+- Home Assistant integrations
 - Any long-running application using the library
 
 ## Next Steps

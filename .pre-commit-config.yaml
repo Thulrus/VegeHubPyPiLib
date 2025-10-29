@@ -1,0 +1,71 @@
+# Pre-commit hooks for VegeHub library
+# Runs automatically before each commit to catch issues early
+
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+      - id: end-of-file-fixer
+        name: Fix end of files
+      - id: check-yaml
+        name: Check YAML syntax
+      - id: check-added-large-files
+        name: Check for large files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+      - id: mixed-line-ending
+        name: Check line endings
+
+  # Python formatting
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black
+        name: Format code with Black
+        language_version: python3.12
+
+  # Python import sorting
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        name: Sort imports with isort
+        args: ["--profile", "black"]
+
+  # Local hooks using Poetry environment
+  - repo: local
+    hooks:
+      # Run tests
+      - id: pytest
+        name: Run pytest
+        entry: poetry run pytest
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
+      # Run pylint
+      - id: pylint
+        name: Run pylint
+        entry: poetry run pylint
+        language: system
+        types: [python]
+        args: [vegehub, tests]
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
+      # Run mypy
+      - id: mypy
+        name: Run mypy type checking
+        entry: poetry run mypy
+        language: system
+        types: [python]
+        args: [vegehub]
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
